@@ -2,17 +2,22 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Audi Competitor Model Matrix (EU)</title>
+<title>EU Competitor Model Matrix</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
   :root{
     --bg:#0f1115; --fg:#e8eaed; --muted:#9aa0a6; --line:#2a2f3a;
-    --site-header-h: 66px;
+    --site-header-h: 66px; /* updated at runtime for sticky offset */
   }
-  body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial;}
+
+  html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial}
+
   header{position:sticky;top:0;background:#0f1115;z-index:30;border-bottom:1px solid var(--line)}
   .wrap{max-width:1200px;margin:0 auto;padding:16px}
-  h1{font-size:18px;margin:0 0 8px 0;font-weight:600}
+  .row{display:flex;gap:12px;align-items:center}
+  h1{font-size:18px;margin:0 0 8px 0;font-weight:600;flex:1 1 auto}
+
   .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
   label{color:var(--muted)}
   select,button{background:#151924;color:var(--fg);border:1px solid var(--line);padding:8px 10px;border-radius:8px;cursor:pointer}
@@ -24,21 +29,23 @@
     border:1px solid var(--line);
     border-radius:10px;
     background:#0f1115;
-    position:relative;
+    position:relative; /* sticky elements calculate against this scrollport */
   }
 
   table{width:100%;border-collapse:separate;border-spacing:0;margin:0}
   th,td{border-bottom:1px solid var(--line);padding:8px 10px;vertical-align:middle;background:#0f1115}
   tbody tr:hover td{background:#131824}
 
+  /* Frozen top row (thead cells) */
   thead th{
     position:sticky;
     top: var(--site-header-h);
     z-index: 20;
-    background:#0f1115;
+    background:#0f1115;            /* opaque to cover rows under it */
     box-shadow: 0 1px 0 0 #2a2f3a, 0 4px 8px #00000033;
   }
 
+  /* Sticky first column */
   #matrixTable th:first-child,
   #matrixTable td:first-child{
     position:sticky;
@@ -48,26 +55,26 @@
     box-shadow: 1px 0 0 #2a2f3a;
     white-space:nowrap;
   }
-  #matrixTable thead th:first-child{ z-index: 25; }
+  #matrixTable thead th:first-child{ z-index: 25 } /* top-left precedence */
 
   .seg{white-space:nowrap;color:#cbd1d9;font-weight:600}
   .brandcell{display:flex;align-items:center;gap:8px;white-space:nowrap}
   .brandname{color:#cbd1d9}
   .tag{font-size:11px;padding:2px 6px;border:1px solid var(--line);border-radius:6px;background:#121725;color:#9aa0a6;margin-left:6px}
   .model{color:var(--fg)}
-  .blank{color:var(--muted)}
+  .blank{color:#9aa0a6}
   .note{font-size:12px;color:#9aa0a6;margin-top:8px}
-  .icon{width:18px;height:18px;display:inline-block;vertical-align:middle;filter: invert(90%) sepia(5%) saturate(200%) hue-rotate(180deg) brightness(95%) contrast(90%);}
+  .icon{width:18px;height:18px;display:inline-block;vertical-align:middle;filter: invert(90%) sepia(5%) saturate(200%) hue-rotate(180deg) brightness(95%) contrast(90%)}
 </style>
 </head>
 <body>
 <header>
   <div class="wrap">
-    <div style="display:flex;gap:12px;align-items:center">
-      <h1 style="flex:1 1 auto">Audi Competitor Model Matrix (EU)</h1>
+    <div class="row">
+      <h1>EU Competitor Model Matrix</h1>
       <div class="controls">
         <label for="viewSelect">View:</label>
-        <select id="viewSelect">
+        <select id="viewSelect" aria-label="View selector">
           <option value="all">All models</option>
           <option value="seg0">Compact Hatch/Sedan</option>
           <option value="seg1">Mid-Size Sedan</option>
@@ -78,7 +85,7 @@
         </select>
       </div>
       <div class="controls">
-        <button id="downloadCsvBtn">Export CSV</button>
+        <button id="downloadCsvBtn" type="button">Export CSV</button>
       </div>
     </div>
   </div>
@@ -86,25 +93,28 @@
 
 <div class="wrap">
   <div class="grid" id="grid">
-    <table id="matrixTable">
+    <table id="matrixTable" aria-describedby="matrixNote">
       <thead></thead>
       <tbody></tbody>
     </table>
   </div>
-  <div class="note">Brands expanded to include Ford, Honda, Toyota, Renault, Opel/Vauxhall, Dacia, SEAT, Nissan, Suzuki, Mitsubishi, Subaru, DS, Jeep, Fiat, MG; placements reflect EU availability and segment alignment. [Sources: brand EU pages, EU sales/lineup context]</div>
+  <div class="note" id="matrixNote">Top row is frozen; brand icons are fetched from a public icon CDN. Columns show generic segments; data content unchanged.</div>
 </div>
 
 <script>
 (function(){
+  // Measure header and set CSS var for correct sticky offset
   function setHeaderOffset(){
     const hdr = document.querySelector('header');
     const h = hdr ? Math.round(hdr.getBoundingClientRect().height) : 66;
     document.documentElement.style.setProperty('--site-header-h', h + 'px');
   }
 
-  const ICON_CDN = 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/'; // Simple Icons CDN [web:136][web:137]
+  // Simple Icons CDN for brand SVGs
+  const ICON_CDN = 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/'; // [web:136][web:199]
 
-  const iconSlug = {
+  // Brand slug map
+  const ICON_SLUG = {
     "Audi":"audi","BMW":"bmw","Mercedes-Benz":"mercedes","Tesla":"tesla","Volvo":"volvo",
     "Lexus":"lexus","Genesis":"genesis","Porsche":"porsche","Jaguar":"jaguar","Land Rover":"landrover",
     "Alfa Romeo":"alfaromeo","Polestar":"polestar","Nio":"nio","BYD":"byd","Lucid":"lucid",
@@ -115,7 +125,8 @@
     "DS":"dsautomobiles","Jeep":"jeep","Fiat":"fiat","MG":"mg"
   };
 
-  const segments = [
+  // Segments (column headers)
+  const SEGMENTS = [
     "Compact Hatch/Sedan",
     "Mid-Size Sedan",
     "Executive Sedan",
@@ -124,9 +135,8 @@
     "Large / 3-Row"
   ];
 
-  // Core dataset: existing premium + new mainstream brands for EU context.
-  const data = {
-    // Premium German + related already present
+  // Data matrix (unchanged content)
+  const DATA = {
     "Audi": ["A3 Hatch / Sedan","A4 Sedan","A6 Sedan","Q3 SUV","Q5 SUV","Q7 SUV"],
     "BMW": ["1-Series Hatch","3-Series Sedan","5-Series Sedan","X1 SAV","X3 SAV","X5 SAV"],
     "BMW (Alt)": ["2-Series Gran Coupe","i4 Gran Coupe (EV)","i5 Sedan (EV)","iX1 (EV)","iX3 (EV)","X7 SAV"],
@@ -159,97 +169,70 @@
     "Hyundai": ["i30","Ioniq 6 (EV)","(Blank)","Kona","Tucson","Santa Fe"],
     "Kia": ["Ceed","EV6 (EV)","(Blank)","Niro","Sportage","Sorento"],
     "Mazda": ["3","6","(Blank)","CX-30","CX-5","CX-60/CX-80"],
-
-    // Newly added mainstream EU brands and placements
-    // Ford EU portfolio and sizing context [web:157][web:160]
     "Ford": ["(Blank)","(Blank)","(Blank)","Puma / Explorer (EV)","Kuga / Mustang Mach‑E","(Blank)"],
-
-    // Honda EU availability (models may vary by market) [web:161][web:175][web:173]
     "Honda": ["Civic","(Blank)","(Blank)","HR‑V / ZR‑V","CR‑V","(Blank)"],
-
-    // Toyota EU lineup highlights [web:168][web:162][web:172]
     "Toyota": ["Corolla","Camry","(Blank)","C‑HR","RAV4 / bZ4X","Highlander"],
-
-    // Renault group key models in EU sales context [web:181][web:29]
     "Renault": ["Clio / Mégane E‑Tech","(Blank)","(Blank)","Captur / Austral","Austral / Espace","(Blank)"],
-
-    // Opel/Vauxhall (Stellantis EU) [web:29][web:183]
     "Opel": ["Corsa","Astra","(Blank)","Mokka","Grandland","(Blank)"],
     "Vauxhall": ["Corsa","Astra","(Blank)","Mokka","Grandland","(Blank)"],
-
-    // Dacia (value EU leader) [web:181]
     "Dacia": ["Sandero","(Blank)","(Blank)","Duster","Jogger (2‑row/3‑row alt)","Jogger (3‑row)"],
-
-    // SEAT (sibling to Cupra; availability varies) [web:29]
     "SEAT": ["Ibiza / Leon","Leon","(Blank)","Arona","Ateca","(Blank)"],
-
-    // Nissan EU [web:29]
     "Nissan": ["(Blank)","(Blank)","(Blank)","Juke","Qashqai","X‑Trail"],
-
-    // Suzuki EU [web:185]
     "Suzuki": ["Swift","(Blank)","(Blank)","Vitara","S‑Cross","(Blank)"],
-
-    // Mitsubishi EU (alliance-based entries) [web:29]
     "Mitsubishi": ["(Blank)","(Blank)","(Blank)","ASX","Eclipse Cross","(Blank)"],
-
-    // Subaru EU (limited lineup) [web:29]
     "Subaru": ["(Blank)","(Blank)","(Blank)","Crosstrek","Forester","(Blank)"],
-
-    // DS Automobiles (premium Stellantis) [web:29]
     "DS": ["DS 3","DS 4","(Blank)","DS 3","DS 7","(Blank)"],
-
-    // Jeep EU [web:29]
     "Jeep": ["(Blank)","(Blank)","(Blank)","Avenger","Compass","(Blank)"],
-
-    // Fiat EU [web:29]
     "Fiat": ["500e / 600e","(Blank)","(Blank)","600e","500X (legacy)","(Blank)"],
-
-    // MG Motor EU [web:191]
     "MG": ["MG4","(Blank)","(Blank)","ZS","Marvel R","(Blank)"]
   };
 
+  // DOM refs
   const viewSelect = document.getElementById('viewSelect');
   const thead = document.querySelector('#matrixTable thead');
   const tbody = document.querySelector('#matrixTable tbody');
 
-  function getAllBaseBrandNames(){
+  // Helpers
+  function baseBrands(){
     const set = new Set();
-    Object.keys(data).forEach(b => set.add(b.replace(/\s*\(.*\)$/, '')));
+    Object.keys(DATA).forEach(k => set.add(k.replace(/\s*\(.*\)$/, '')));
     return Array.from(set).sort((a,b)=> a.localeCompare(b,'en',{sensitivity:'base'}));
   }
-  function rowsForBrand(base){
-    const keys = Object.keys(data).filter(k => k === base || k.startsWith(base + ' '));
+  function brandRows(base){
+    const keys = Object.keys(DATA).filter(k => k === base || k.startsWith(base + ' '));
     const order = k => k.includes('(Alt)') ? 1 : k.includes('(Addl)') ? 2 : 0;
     return keys.sort((a,b)=> order(a)-order(b));
   }
   function iconURL(base){
-    const slug = iconSlug[base];
+    const slug = ICON_SLUG[base];
     return slug ? ICON_CDN + slug + '.svg' : null;
   }
-  function currentView(){
-    const val = viewSelect.value;
-    if (val === 'all') return { mode:'all', segIndex:null };
-    const idx = Number(val.replace('seg',''));
-    return { mode:'single', segIndex: isNaN(idx) ? 0 : idx };
+  function getView(){
+    const v = viewSelect.value;
+    if (v === 'all') return { all:true, seg:-1 };
+    const idx = Number(v.replace('seg',''));
+    return { all:false, seg: (Number.isFinite(idx)&&idx>=0&&idx<6)?idx:0 };
   }
 
+  // Renderers
   function renderHeader(){
     thead.innerHTML = '';
     const tr = document.createElement('tr');
+
     const thBrand = document.createElement('th');
     thBrand.textContent = 'Brand';
     tr.appendChild(thBrand);
 
-    const view = currentView();
-    if (view.mode === 'all') {
-      segments.forEach(seg => {
+    const {all, seg} = getView();
+    if (all){
+      SEGMENTS.forEach(name => {
         const th = document.createElement('th');
-        th.innerHTML = `<div class="seg">${seg}</div>`;
+        th.innerHTML = `<div class="seg">${name}</div>`;
         tr.appendChild(th);
       });
     } else {
       const th = document.createElement('th');
-      th.innerHTML = `<div class="seg">${segments[view.segIndex]}</div>`;
+      th.innerHTML = `<div class="seg">${SEGMENTS[seg]}</div>`;
       tr.appendChild(th);
     }
     thead.appendChild(tr);
@@ -257,31 +240,31 @@
 
   function renderBody(){
     tbody.innerHTML = '';
-    const view = currentView();
-    const bases = getAllBaseBrandNames();
-    bases.forEach(base => {
-      rowsForBrand(base).forEach(key => {
+    const {all, seg} = getView();
+    baseBrands().forEach(base => {
+      brandRows(base).forEach(key => {
         const tr = document.createElement('tr');
 
+        // Brand cell
         const tdBrand = document.createElement('td');
         const url = iconURL(base);
         const img = url ? `<img class="icon" alt="${base}" src="${url}" onerror="this.style.display='none'">` : '';
         tdBrand.innerHTML = `<div class="brandcell">${img}<span class="brandname">${base}</span>${key!==base?`<span class="tag">${key.replace(base,'').trim()}</span>`:''}</div>`;
         tr.appendChild(tdBrand);
 
-        const models = data[key] || [];
-        if (view.mode === 'all') {
-          for(let i=0;i<6;i++){
+        // Segment cells
+        const models = DATA[key] || [];
+        if (all){
+          for (let i=0;i<6;i++){
             const td = document.createElement('td');
-            const val = models[i] || '(Blank)';
-            td.innerHTML = val === '(Blank)' ? `<span class="blank">(Blank)</span>` : `<span class="model">${val}</span>`;
+            const v = models[i] || '(Blank)';
+            td.innerHTML = v==='(Blank)' ? `<span class="blank">(Blank)</span>` : `<span class="model">${v}</span>`;
             tr.appendChild(td);
           }
         } else {
-          const i = view.segIndex;
           const td = document.createElement('td');
-          const val = models[i] || '(Blank)';
-          td.innerHTML = val === '(Blank)' ? `<span class="blank">(Blank)</span>` : `<span class="model">${val}</span>`;
+          const v = models[seg] || '(Blank)';
+          td.innerHTML = v==='(Blank)' ? `<span class="blank">(Blank)</span>` : `<span class="model">${v}</span>`;
           tr.appendChild(td);
         }
         tbody.appendChild(tr);
@@ -289,39 +272,39 @@
     });
   }
 
+  // CSV export
   function exportCSV(){
     const rows = [];
-    const view = currentView();
-
-    if (view.mode === 'all') {
-      rows.push(['Brand', ...segments]);
+    const {all, seg} = getView();
+    if (all){
+      rows.push(['Brand', ...SEGMENTS]);
     } else {
-      rows.push(['Brand', segments[view.segIndex]]);
+      rows.push(['Brand', SEGMENTS[seg]]);
     }
 
-    const bases = getAllBaseBrandNames();
-    bases.forEach(base => {
-      rowsForBrand(base).forEach(key => {
-        const models = data[key] || [];
-        if (view.mode === 'all') {
+    baseBrands().forEach(base => {
+      brandRows(base).forEach(key => {
+        const models = DATA[key] || [];
+        if (all){
           rows.push([base + (key!==base?` ${key.replace(base,'')}`:''), ...models.map(x=> x||'(Blank)')]);
         } else {
-          const val = models[view.segIndex] || '(Blank)';
-          rows.push([base + (key!==base?` ${key.replace(base,'')}`:''), val]);
+          rows.push([base + (key!==base?` ${key.replace(base,'')}`:''), models[seg] || '(Blank)']);
         }
       });
     });
 
-    const csv = rows.map(r => r.map(x => /[",\n]/.test(x)? `"${x.replace(/"/g,'""')}"` : x).join(',')).join('\n');
+    const csv = rows.map(r => r.map(s => /[",\n]/.test(String(s)) ? `"${String(s).replace(/"/g,'""')}"` : String(s)).join(',')).join('\n');
     const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = view.mode==='all' ? 'EU_Competitor_Model_Matrix_all.csv'
-                                   : `EU_Competitor_Model_Matrix_${segments[view.segIndex].replace(/\s+/g,'_')}.csv`;
+    a.download = all ? 'EU_Competitor_Model_Matrix_all.csv'
+                     : `EU_Competitor_Model_Matrix_${SEGMENTS[seg].replace(/\s+/g,'_')}.csv`;
     document.body.appendChild(a);
-    a.click(); a.remove();
+    a.click();
+    a.remove();
   }
 
+  // Init
   function start(){
     setHeaderOffset();
     renderHeader();
@@ -330,8 +313,7 @@
     document.getElementById('viewSelect').addEventListener('change', () => { renderHeader(); renderBody(); });
     document.getElementById('downloadCsvBtn').addEventListener('click', exportCSV);
   }
-
-  if (document.readyState === 'loading') {
+  if (document.readyState === 'loading'){
     document.addEventListener('DOMContentLoaded', start);
   } else {
     start();
