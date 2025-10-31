@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>EU Competitor Model Matrix</title>
+<title>EU Auto Competitor Model Matrix</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
   :root{
@@ -106,7 +106,7 @@
 <header>
   <div class="wrap">
     <div class="row">
-      <h1>EU Competitor Model Matrix</h1>
+      <h1>EU Auto Competitor Model Matrix</h1>
       <div class="controls">
         <label for="viewSelect">View:</label>
         <select id="viewSelect" aria-label="View selector">
@@ -133,8 +133,7 @@
       <tbody></tbody>
     </table>
   </div>
-  <div class="note" id="matrixNote">Top row is frozen under the site header; first column stays visible; groups can collapse; icons from Simple Icons CDN. [web:15][web:12]</div>
-</div>
+  </div>
 
 <script>
 (function(){
@@ -427,8 +426,8 @@
     const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = all ? 'EU_Competitor_Model_Matrix_all.csv'
-                     : `EU_Competitor_Model_Matrix_${SEGMENTS[seg].replace(/\s+/g,'_')}.csv`;
+    a.download = all ? 'EU_Auto_Competitor_Model_Matrix_all.csv'
+                     : `EU_Auto_Competitor_Model_Matrix_${SEGMENTS[seg].replace(/\s+/g,'_')}.csv`;
     document.body.appendChild(a);
     a.click();
     a.remove();
