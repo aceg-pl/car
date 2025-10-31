@@ -7,37 +7,52 @@
 <style>
   :root{
     --bg:#0f1115; --fg:#e8eaed; --muted:#9aa0a6; --line:#2a2f3a;
-    --chip:#1a73e81a; --site-header-h: 66px;
+    --site-header-h: 66px; /* will be updated by JS */
   }
   body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial;}
-  header{position:sticky;top:0;background:#0f1115;z-index:20;border-bottom:1px solid var(--line)}
+  header{position:sticky;top:0;background:#0f1115;z-index:30;border-bottom:1px solid var(--line)}
   .wrap{max-width:1200px;margin:0 auto;padding:16px}
   h1{font-size:18px;margin:0 0 8px 0;font-weight:600}
   .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
   label{color:var(--muted)}
   select,button{background:#151924;color:var(--fg);border:1px solid var(--line);padding:8px 10px;border-radius:8px;cursor:pointer}
   button:hover{border-color:#3a4252}
-  .grid{overflow:auto;max-height:70vh;border:1px solid var(--line);border-radius:10px;background:#0f1115}
-  table{width:100%;border-collapse:separate;border-spacing:0;margin-top:0}
+
+  /* Scroll container drives stickiness */
+  .grid{
+    overflow:auto;
+    max-height:70vh;
+    border:1px solid var(--line);
+    border-radius:10px;
+    background:#0f1115;
+    position:relative; /* sticky children use this scrollport */
+  }
+
+  table{width:100%;border-collapse:separate;border-spacing:0;margin:0}
   th,td{border-bottom:1px solid var(--line);padding:8px 10px;vertical-align:middle;background:#0f1115}
   tbody tr:hover td{background:#131824}
+
+  /* Sticky header row: offset equals measured site header */
   thead th{
     position:sticky;
     top: var(--site-header-h);
-    z-index: 5;
-    background:#0f1115;
+    z-index: 20;
+    background:#0f1115; /* opaque to cover content beneath */
     box-shadow: 0 1px 0 0 #2a2f3a, 0 4px 8px #00000033;
   }
+
+  /* Sticky first column (below header cells) */
   #matrixTable th:first-child,
   #matrixTable td:first-child{
     position:sticky;
     left:0;
-    z-index: 4;
+    z-index: 10;
     background:#0f1115;
     box-shadow: 1px 0 0 #2a2f3a;
     white-space:nowrap;
   }
-  #matrixTable thead th:first-child{ z-index: 6; }
+  #matrixTable thead th:first-child{ z-index: 25; } /* top-left cell above others */
+
   .seg{white-space:nowrap;color:#cbd1d9;font-weight:600}
   .brandcell{display:flex;align-items:center;gap:8px;white-space:nowrap}
   .brandname{color:#cbd1d9}
@@ -73,24 +88,25 @@
 </header>
 
 <div class="wrap">
-  <div class="grid">
+  <div class="grid" id="grid">
     <table id="matrixTable">
       <thead></thead>
       <tbody></tbody>
     </table>
   </div>
-  <div class="note">Switch the view to show either all six segments or a single segment column next to the Brand column.</div>
+  <div class="note">Use View to toggle all six segments or a single segment column. Header offset is auto-measured to avoid overlap.</div>
 </div>
 
 <script>
 (function(){
+  /* Measure header and set CSS var so sticky top matches actual height */
   function setHeaderOffset(){
     const hdr = document.querySelector('header');
     const h = hdr ? Math.round(hdr.getBoundingClientRect().height) : 66;
     document.documentElement.style.setProperty('--site-header-h', h + 'px');
   }
 
-  const ICON_CDN = 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/'; // Simple Icons CDN [web:136][web:137]
+  const ICON_CDN = 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/';
 
   const iconSlug = {
     "Audi":"audi","BMW":"bmw","Mercedes-Benz":"mercedes","Tesla":"tesla","Volvo":"volvo",
@@ -101,13 +117,14 @@
   };
 
   const segments = [
-    "Compact Hatch/Sedan",     // maps to data index 0
-    "Mid-Size Sedan",          // 1
-    "Executive Sedan",         // 2
-    "Compact SUV",             // 3
-    "Mid-Size SUV",            // 4
-    "Large / 3-Row"            // 5
+    "Compact Hatch/Sedan",
+    "Mid-Size Sedan",
+    "Executive Sedan",
+    "Compact SUV",
+    "Mid-Size SUV",
+    "Large / 3-Row"
   ];
+
   const data = {
     "Audi": ["A3 Hatch / Sedan","A4 Sedan","A6 Sedan","Q3 SUV","Q5 SUV","Q7 SUV"],
     "BMW": ["1-Series Hatch","3-Series Sedan","5-Series Sedan","X1 SAV","X3 SAV","X5 SAV"],
@@ -171,18 +188,6 @@
 
   function renderHeader(){
     thead.innerHTML = '';
-    // Spacer row to avoid jump under sticky header
-    const spacer = document.createElement('tr');
-    spacer.setAttribute('aria-hidden','true');
-    spacer.style.height = '0';
-    spacer.style.lineHeight = '0';
-    for(let i=0;i<7;i++){
-      const th = document.createElement('th');
-      th.style.padding='0'; th.style.border='0';
-      spacer.appendChild(th);
-    }
-    thead.appendChild(spacer);
-
     const tr = document.createElement('tr');
     const thBrand = document.createElement('th');
     thBrand.textContent = 'Brand';
@@ -211,7 +216,6 @@
       rowsForBrand(base).forEach(key => {
         const tr = document.createElement('tr');
 
-        // Brand cell with icon and variant tag
         const tdBrand = document.createElement('td');
         const url = iconURL(base);
         const img = url ? `<img class="icon" alt="${base}" src="${url}" onerror="this.style.display='none'">` : '';
@@ -266,7 +270,7 @@
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = view.mode==='all' ? 'Audi_Competitor_Model_Matrix_EU_2025_all.csv'
-                                   : `Audi_Competitor_Model_Matrix_EU_2025_${segments[view.segIndex].replace(/\\s+/g,'_')}.csv`;
+                                   : `Audi_Competitor_Model_Matrix_EU_2025_${segments[view.segIndex].replace(/\s+/g,'_')}.csv`;
     document.body.appendChild(a);
     a.click(); a.remove();
   }
@@ -276,7 +280,7 @@
     renderHeader();
     renderBody();
     window.addEventListener('resize', setHeaderOffset, {passive:true});
-    viewSelect.addEventListener('change', () => { renderHeader(); renderBody(); });
+    document.getElementById('viewSelect').addEventListener('change', () => { renderHeader(); renderBody(); });
     document.getElementById('downloadCsvBtn').addEventListener('click', exportCSV);
   }
 
