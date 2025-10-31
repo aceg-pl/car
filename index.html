@@ -36,12 +36,13 @@
   th,td{border-bottom:1px solid var(--line);padding:8px 10px;vertical-align:middle;background:#0f1115}
   tbody tr:hover td{background:#131824}
 
+  /* FIX APPLIED HERE: Changed top to 0 and adjusted box-shadow */
   thead th{
     position:sticky;
-    top: var(--site-header-h);
+    top: 0; /* Changed from var(--site-header-h) to 0 to fix the overlap */
     z-index: 20;
     background:#0f1115;
-    box-shadow: 0 1px 0 0 #2a2f3a, 0 4px 8px #00000033;
+    box-shadow: 0 1px 0 0 #2a2f3a; /* Simplified shadow to prevent visual overlap */
   }
 
   #matrixTable th:first-child,
