@@ -36,13 +36,12 @@
   th,td{border-bottom:1px solid var(--line);padding:8px 10px;vertical-align:middle;background:#0f1115}
   tbody tr:hover td{background:#131824}
 
-  /* FIX APPLIED HERE: Changed top to 0 and adjusted box-shadow */
   thead th{
     position:sticky;
-    top: 0; /* Changed from var(--site-header-h) to 0 to fix the overlap */
+    top: 0;
     z-index: 20;
     background:#0f1115;
-    box-shadow: 0 1px 0 0 #2a2f3a; /* Simplified shadow to prevent visual overlap */
+    box-shadow: 0 1px 0 0 #2a2f3a;
   }
 
   #matrixTable th:first-child,
@@ -79,11 +78,19 @@
     box-shadow:1px 0 0 #2a2f3a;
     white-space:nowrap;
     background:#1e2536;
+    /* Tweak for tighter fit in mobile/first column: less horizontal padding */
+    padding: 8px 6px; 
   }
+  
+  /* Hide brand count/meta info */
+  .group-meta{ 
+    display: none; 
+  }
+  
   .group-toggle{
     cursor:pointer;
     user-select:none;
-    margin-right:8px;
+    margin-right:4px; /* Reduced margin */
     display:inline-block;
     width:1.1em;
     text-align:center;
@@ -94,8 +101,6 @@
     line-height:1em;
     padding:2px;
   }
-  .group-meta{color:#9aa0a6;font-weight:500;margin-left:6px;font-size:12px}
-
   .group-toggle:focus{outline:2px solid #3a6df0;outline-offset:2px}
 </style>
 </head>
@@ -308,14 +313,11 @@
       const label = document.createElement('span');
       label.textContent = groupName;
 
-      const countBrands = byGroup[groupName].length;
-      const meta = document.createElement('span');
-      meta.className = 'group-meta';
-      meta.textContent = `(${countBrands} brand${countBrands>1?'s':''})`;
+      // REMOVED THE CREATION OF THE BRAND COUNT/META SPAN
 
       tdG.appendChild(toggle);
       tdG.appendChild(label);
-      tdG.appendChild(meta);
+      // tdG.appendChild(meta); // This line is now effectively removed
       trG.appendChild(tdG);
 
       const colCount = all ? 6 : 1;
