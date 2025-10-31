@@ -6,19 +6,40 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
   :root{
-    --bg:#0f1115; --fg:#e8eaed; --muted:#9aa0a6; --line:#2a2f3a; --chip:#1a73e81a;
+    --bg:#0f1115; --fg:#e8eaed; --muted:#9aa0a6; --line:#2a2f3a;
+    --chip:#1a73e81a; --site-header-h: 66px;
   }
+  /* Layout and theming */
   body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial;}
-  header{position:sticky;top:0;background:#0f1115;backdrop-filter:blur(6px);z-index:10;border-bottom:1px solid var(--line)}
+  header{position:sticky;top:0;background:#0f1115;z-index:20;border-bottom:1px solid var(--line)}
   .wrap{max-width:1200px;margin:0 auto;padding:16px}
   h1{font-size:18px;margin:0 0 8px 0;font-weight:600}
   .controls-right{margin-left:auto;display:flex;gap:8px}
-  button{background:#151924;color:var(--fg);border:1px solid var(--line);padding:8px 10px;border-radius:8px}
-  .grid{overflow:auto;max-height:70vh;border:1px solid var(--line);border-radius:10px}
-  table{width:100%;border-collapse:separate;border-spacing:0;margin-top:14px}
-  th,td{border-bottom:1px solid var(--line);padding:8px 10px;vertical-align:middle}
-  th{position:sticky;top:66px;background:#0f1115;border-bottom:1px solid var(--line);z-index:5}
+  button{background:#151924;color:var(--fg);border:1px solid var(--line);padding:8px 10px;border-radius:8px;cursor:pointer}
+  button:hover{border-color:#3a4252}
+  /* Table container */
+  .grid{overflow:auto;max-height:70vh;border:1px solid var(--line);border-radius:10px;background:#0f1115}
+  table{width:100%;border-collapse:separate;border-spacing:0;margin-top:0}
+  th,td{border-bottom:1px solid var(--line);padding:8px 10px;vertical-align:middle;background:#0f1115}
   tbody tr:hover td{background:#131824}
+  /* Sticky header (account for site header height) */
+  thead th{
+    position:sticky;
+    top: var(--site-header-h);
+    z-index: 5;
+    background:#0f1115;
+    box-shadow: 0 1px 0 0 #2a2f3a, 0 4px 8px #00000033;
+  }
+  /* Sticky first column */
+  #matrixTable th:first-child,
+  #matrixTable td:first-child{
+    position:sticky;
+    left:0;
+    z-index: 4;
+    background:#0f1115;
+    box-shadow: 1px 0 0 #2a2f3a;
+  }
+  #matrixTable thead th:first-child{ z-index: 6; }
   .seg{white-space:nowrap;color:#cbd1d9;font-weight:600}
   .brandcell{display:flex;align-items:center;gap:8px;white-space:nowrap}
   .brandname{color:#cbd1d9}
@@ -43,6 +64,16 @@
   <div class="grid">
     <table id="matrixTable">
       <thead>
+        <!-- Spacer row prevents initial jump/clipping under sticky header -->
+        <tr aria-hidden="true" style="height:0;line-height:0">
+          <th style="padding:0;border:0;"></th>
+          <th style="padding:0;border:0;"></th>
+          <th style="padding:0;border:0;"></th>
+          <th style="padding:0;border:0;"></th>
+          <th style="padding:0;border:0;"></th>
+          <th style="padding:0;border:0;"></th>
+          <th style="padding:0;border:0;"></th>
+        </tr>
         <tr>
           <th>Brand</th>
           <th><div class="seg">Compact Hatch/Sedan</div></th>
@@ -56,15 +87,22 @@
       <tbody></tbody>
     </table>
   </div>
-  <div class="note">Static segments for comparison across brands; columns are generic and not tied to a specific brand label.</div>
+  <div class="note">Columns are generic segments; brand icons are shown before names in the first column.</div>
 </div>
 
 <script>
 (function(){
-  // Simple Icons CDN base (uses @latest to keep current)
-  const ICON_CDN = 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/'; // see project README for CDN usage [web:137]
+  // Measure header height and set sticky offset variable
+  function setHeaderOffset(){
+    const hdr = document.querySelector('header');
+    const h = hdr ? Math.round(hdr.getBoundingClientRect().height) : 66;
+    document.documentElement.style.setProperty('--site-header-h', h + 'px');
+  }
 
-  // Map base brand -> Simple Icons slug
+  // Simple Icons CDN for brand logos (SVG)
+  // Simple Icons project provides brand SVGs via CDN; slugs below map to filenames. [Source: Simple Icons]
+  const ICON_CDN = 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/';
+
   const iconSlug = {
     "Audi":"audi",
     "BMW":"bmw",
@@ -91,6 +129,7 @@
     "Mazda":"mazda"
   };
 
+  // Segments (generic headers)
   const segments = [
     "A3 Compact Hatch/Sedan",
     "A4 Mid-Size Sedan",
@@ -100,7 +139,7 @@
     "Q7 Large SUV / 3-Row"
   ];
 
-  // Dataset rows (base and variants)
+  // Dataset: base rows and variant rows
   const data = {
     "Audi": ["A3 Hatch / Sedan","A4 Sedan","A6 Sedan","Q3 SUV","Q5 SUV","Q7 SUV"],
     "BMW": ["1-Series Hatch","3-Series Sedan","5-Series Sedan","X1 SAV","X3 SAV","X5 SAV"],
@@ -146,11 +185,9 @@
     const order = k => k.includes('(Alt)') ? 1 : k.includes('(Addl)') ? 2 : 0;
     return keys.sort((a,b)=> order(a)-order(b));
   }
-
-  function iconURL(baseBrand){
-    const slug = iconSlug[baseBrand];
-    if(!slug) return null;
-    return ICON_CDN + slug + '.svg';
+  function iconURL(base){
+    const slug = iconSlug[base];
+    return slug ? ICON_CDN + slug + '.svg' : null;
   }
 
   function buildTable(){
@@ -160,11 +197,15 @@
     bases.forEach(base => {
       rowsForBrand(base).forEach(key => {
         const tr = document.createElement('tr');
+
+        // Brand cell with icon
         const tdBrand = document.createElement('td');
         const url = iconURL(base);
         const img = url ? `<img class="icon" alt="${base}" src="${url}" onerror="this.style.display='none'">` : '';
         tdBrand.innerHTML = `<div class="brandcell">${img}<span class="brandname">${base}</span>${key!==base?`<span class="tag">${key.replace(base,'').trim()}</span>`:''}</div>`;
         tr.appendChild(tdBrand);
+
+        // Segment cells
         const models = data[key] || [];
         for(let i=0;i<6;i++){
           const td = document.createElement('td');
@@ -197,7 +238,9 @@
   }
 
   function start(){
+    setHeaderOffset();
     buildTable();
+    window.addEventListener('resize', setHeaderOffset, {passive:true});
     document.getElementById('downloadCsvBtn').addEventListener('click', exportCSV);
   }
 
