@@ -6,44 +6,35 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
   :root{
-    --bg:#0f1115; --fg:#e8eaed; --muted:#9aa0a6; --line:#2a2f3a; --accent:#5e9cff;
-    --chip:#1a73e81a;
+    --bg:#0f1115; --fg:#e8eaed; --muted:#9aa0a6; --line:#2a2f3a; --chip:#1a73e81a;
   }
   body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial;}
   header{position:sticky;top:0;background:#0f1115;backdrop-filter:blur(6px);z-index:10;border-bottom:1px solid var(--line)}
   .wrap{max-width:1200px;margin:0 auto;padding:16px}
   h1{font-size:18px;margin:0 0 8px 0;font-weight:600}
-  .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
-  label{color:var(--muted)}
-  select,button{background:#151924;color:var(--fg);border:1px solid var(--line);padding:8px 10px;border-radius:8px}
-  .hint{color:var(--muted);font-size:12px}
+  .controls-right{margin-left:auto;display:flex;gap:8px}
+  button{background:#151924;color:var(--fg);border:1px solid var(--line);padding:8px 10px;border-radius:8px}
+  .grid{overflow:auto;max-height:70vh;border:1px solid var(--line);border-radius:10px}
   table{width:100%;border-collapse:separate;border-spacing:0;margin-top:14px}
-  th,td{border-bottom:1px solid var(--line);padding:8px 10px;vertical-align:top}
-  th{position:sticky;top:77px;background:#0f1115;border-bottom:1px solid var(--line);z-index:5}
+  th,td{border-bottom:1px solid var(--line);padding:8px 10px;vertical-align:middle}
+  th{position:sticky;top:66px;background:#0f1115;border-bottom:1px solid var(--line);z-index:5}
   tbody tr:hover td{background:#131824}
   .seg{white-space:nowrap;color:#cbd1d9;font-weight:600}
-  .brand{white-space:nowrap;color:#cbd1d9}
+  .brandcell{display:flex;align-items:center;gap:8px;white-space:nowrap}
+  .brandname{color:#cbd1d9}
+  .tag{font-size:11px;padding:2px 6px;border:1px solid var(--line);border-radius:6px;background:#121725;color:#9aa0a6;margin-left:6px}
   .model{color:var(--fg)}
   .blank{color:var(--muted)}
-  .pill{display:inline-block;padding:.15rem .5rem;border-radius:999px;background:var(--chip);border:1px solid #2a65ff33;color:#9ec1ff;font-size:11px;margin-left:6px}
-  .grid{overflow:auto;max-height:70vh;border:1px solid var(--line);border-radius:10px}
-  .tag{font-size:11px;padding:2px 6px;border:1px solid var(--line);border-radius:6px;background:#121725;color:#9aa0a6;margin-left:6px}
-  .controls-right{margin-left:auto;display:flex;gap:8px}
   .note{font-size:12px;color:#9aa0a6;margin-top:8px}
+  .icon{width:18px;height:18px;display:inline-block;vertical-align:middle;filter: invert(90%) sepia(5%) saturate(200%) hue-rotate(180deg) brightness(95%) contrast(90%);}
 </style>
 </head>
 <body>
 <header>
-  <div class="wrap">
-    <h1>Audi Competitor Model Matrix (EU)</h1>
-    <div class="controls">
-      <label for="brandSelect">Choose brand for column headers:</label>
-      <select id="brandSelect"></select>
-      <span class="hint">Pick a brand to label the six columns; rows list all brands’ models by segment.</span>
-      <div class="controls-right">
-        <button id="downloadCsvBtn">Export CSV</button>
-        <button id="resetBtn">Reset</button>
-      </div>
+  <div class="wrap" style="display:flex;gap:12px;align-items:center">
+    <h1 style="flex:1 1 auto">Audi Competitor Model Matrix (EU)</h1>
+    <div class="controls-right">
+      <button id="downloadCsvBtn">Export CSV</button>
     </div>
   </div>
 </header>
@@ -51,15 +42,55 @@
 <div class="wrap">
   <div class="grid">
     <table id="matrixTable">
-      <thead></thead>
+      <thead>
+        <tr>
+          <th>Brand</th>
+          <th><div class="seg">Compact Hatch/Sedan</div></th>
+          <th><div class="seg">Mid-Size Sedan</div></th>
+          <th><div class="seg">Executive Sedan</div></th>
+          <th><div class="seg">Compact SUV</div></th>
+          <th><div class="seg">Mid-Size SUV</div></th>
+          <th><div class="seg">Large / 3-Row</div></th>
+        </tr>
+      </thead>
       <tbody></tbody>
     </table>
   </div>
-  <div class="note">Segments: A3 Compact, A4 Mid-Size, A6 Executive, Q3 Compact SUV, Q5 Mid-Size SUV, Q7 Large/3-Row.</div>
+  <div class="note">Static segments for comparison across brands; columns are generic and not tied to a specific brand label.</div>
 </div>
 
 <script>
-(function initFactory(){
+(function(){
+  // Simple Icons CDN base (uses @latest to keep current)
+  const ICON_CDN = 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/'; // see project README for CDN usage [web:137]
+
+  // Map base brand -> Simple Icons slug
+  const iconSlug = {
+    "Audi":"audi",
+    "BMW":"bmw",
+    "Mercedes-Benz":"mercedes",
+    "Tesla":"tesla",
+    "Volvo":"volvo",
+    "Lexus":"lexus",
+    "Genesis":"genesis",
+    "Porsche":"porsche",
+    "Jaguar":"jaguar",
+    "Land Rover":"landrover",
+    "Alfa Romeo":"alfaromeo",
+    "Polestar":"polestar",
+    "Nio":"nio",
+    "BYD":"byd",
+    "Lucid":"lucid",
+    "Volkswagen":"volkswagen",
+    "Škoda":"skoda",
+    "Cupra":"cupra",
+    "Peugeot":"peugeot",
+    "Citroën":"citroen",
+    "Hyundai":"hyundai",
+    "Kia":"kia",
+    "Mazda":"mazda"
+  };
+
   const segments = [
     "A3 Compact Hatch/Sedan",
     "A4 Mid-Size Sedan",
@@ -69,6 +100,7 @@
     "Q7 Large SUV / 3-Row"
   ];
 
+  // Dataset rows (base and variants)
   const data = {
     "Audi": ["A3 Hatch / Sedan","A4 Sedan","A6 Sedan","Q3 SUV","Q5 SUV","Q7 SUV"],
     "BMW": ["1-Series Hatch","3-Series Sedan","5-Series Sedan","X1 SAV","X3 SAV","X5 SAV"],
@@ -104,9 +136,6 @@
     "Mazda": ["3","6","(Blank)","CX-30","CX-5","CX-60/CX-80"]
   };
 
-  const primaryBrand = "Audi";
-  let brandSelect, thead, tbody;
-
   function getAllBaseBrandNames(){
     const set = new Set();
     Object.keys(data).forEach(b => set.add(b.replace(/\s*\(.*\)$/, '')));
@@ -117,64 +146,45 @@
     const order = k => k.includes('(Alt)') ? 1 : k.includes('(Addl)') ? 2 : 0;
     return keys.sort((a,b)=> order(a)-order(b));
   }
-  function headerForBrand(base){
-    const keys = rowsForBrand(base);
-    return data[keys[0]] || data[primaryBrand];
+
+  function iconURL(baseBrand){
+    const slug = iconSlug[baseBrand];
+    if(!slug) return null;
+    return ICON_CDN + slug + '.svg';
   }
-  function renderHeader(base){
-    thead.innerHTML = '';
-    const tr1 = document.createElement('tr');
-    const th0 = document.createElement('th'); th0.textContent = 'Brand'; tr1.appendChild(th0);
-    segments.forEach(seg => {
-      const th = document.createElement('th');
-      th.innerHTML = `<div class="seg">${seg}<span class="pill">${base}</span></div>`;
-      tr1.appendChild(th);
-    });
-    thead.appendChild(tr1);
-  }
-  function renderBody(){
+
+  function buildTable(){
+    const tbody = document.querySelector('#matrixTable tbody');
     tbody.innerHTML = '';
-    const allBases = getAllBaseBrandNames();
-    allBases.forEach(b => {
-      rowsForBrand(b).forEach(key => {
+    const bases = getAllBaseBrandNames();
+    bases.forEach(base => {
+      rowsForBrand(base).forEach(key => {
         const tr = document.createElement('tr');
         const tdBrand = document.createElement('td');
-        tdBrand.innerHTML = `<span class="brand">${b}</span>${key!==b?`<span class="tag">${key.replace(b,'').trim()}</span>`:''}`;
+        const url = iconURL(base);
+        const img = url ? `<img class="icon" alt="${base}" src="${url}" onerror="this.style.display='none'">` : '';
+        tdBrand.innerHTML = `<div class="brandcell">${img}<span class="brandname">${base}</span>${key!==base?`<span class="tag">${key.replace(base,'').trim()}</span>`:''}</div>`;
         tr.appendChild(tdBrand);
         const models = data[key] || [];
-        segments.forEach((_, i) => {
+        for(let i=0;i<6;i++){
           const td = document.createElement('td');
           const val = models[i] || '(Blank)';
           td.innerHTML = val === '(Blank)' ? `<span class="blank">(Blank)</span>` : `<span class="model">${val}</span>`;
           tr.appendChild(td);
-        });
+        }
         tbody.appendChild(tr);
       });
     });
   }
-  function populateSelector(){
-    if(!brandSelect) return;
-    brandSelect.innerHTML = '';
-    const bases = getAllBaseBrandNames();
-    bases.forEach(b => {
-      const opt = document.createElement('option');
-      opt.value = b; opt.textContent = b;
-      brandSelect.appendChild(opt);
-    });
-    if (bases.includes(primaryBrand)) {
-      brandSelect.value = primaryBrand;
-    } else if (bases.length) {
-      brandSelect.selectedIndex = 0;
-    }
-  }
+
   function exportCSV(){
     const rows = [];
-    rows.push(['Brand', ...segments]);
-    const allBases = getAllBaseBrandNames();
-    allBases.forEach(b => {
-      rowsForBrand(b).forEach(key => {
+    rows.push(['Brand','Compact Hatch/Sedan','Mid-Size Sedan','Executive Sedan','Compact SUV','Mid-Size SUV','Large / 3-Row']);
+    const bases = getAllBaseBrandNames();
+    bases.forEach(base => {
+      rowsForBrand(base).forEach(key => {
         const models = data[key] || [];
-        rows.push([b + (key!==b?` ${key.replace(b,'')}`:''), ...segments.map((_,i)=> models[i]||'(Blank)')]);
+        rows.push([base + (key!==base?` ${key.replace(base,'')}`:''), ...models.map(x=> x||'(Blank)')]);
       });
     });
     const csv = rows.map(r => r.map(x => /[",\n]/.test(x)? `"${x.replace(/"/g,'""')}"` : x).join(',')).join('\n');
@@ -185,32 +195,16 @@
     document.body.appendChild(a);
     a.click(); a.remove();
   }
-  function reset(){
-    brandSelect.value = primaryBrand;
-    renderHeader(primaryBrand);
-    renderBody();
-  }
 
   function start(){
-    brandSelect = document.getElementById('brandSelect');
-    thead = document.querySelector('#matrixTable thead');
-    tbody = document.querySelector('#matrixTable tbody');
-    if(!brandSelect || !thead || !tbody){
-      console.error('Matrix initialization failed: missing DOM nodes');
-      return;
-    }
-    populateSelector();
-    renderHeader(brandSelect.value || primaryBrand);
-    renderBody();
-    brandSelect.addEventListener('change', () => renderHeader(brandSelect.value));
+    buildTable();
     document.getElementById('downloadCsvBtn').addEventListener('click', exportCSV);
-    document.getElementById('resetBtn').addEventListener('click', reset);
   }
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', start);
   } else {
-    start(); // DOM already loaded
+    start();
   }
 })();
 </script>
