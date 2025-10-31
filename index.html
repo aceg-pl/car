@@ -10,68 +10,103 @@
     --site-header-h: 66px; /* updated at runtime */
   }
 
-  html,body{height:100%} /* ensure proper layout and measurements */ /* [web:196] */
-  body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial} /* [web:196] */
+  html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial}
 
-  header{position:sticky;top:0;background:#0f1115;z-index:30;border-bottom:1px solid var(--line)} /* sticky site header above table */ /* [web:192] */
-  .wrap{max-width:1200px;margin:0 auto;padding:16px} /* layout container */ /* [web:196] */
-  .row{display:flex;gap:12px;align-items:center} /* header row */ /* [web:196] */
-  h1{font-size:18px;margin:0 0 8px 0;font-weight:600;flex:1 1 auto} /* title */ /* [web:196] */
+  header{position:sticky;top:0;background:#0f1115;z-index:30;border-bottom:1px solid var(--line)}
+  .wrap{max-width:1200px;margin:0 auto;padding:16px}
+  .row{display:flex;gap:12px;align-items:center}
+  h1{font-size:18px;margin:0 0 8px 0;font-weight:600;flex:1 1 auto}
 
-  .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center} /* controls wrapper */ /* [web:196] */
-  label{color:var(--muted)} /* label style */ /* [web:196] */
-  select,button{background:#151924;color:var(--fg);border:1px solid var(--line);padding:8px 10px;border-radius:8px;cursor:pointer} /* inputs */ /* [web:196] */
-  button:hover{border-color:#3a4252} /* hover affordance */ /* [web:196] */
+  .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+  label{color:var(--muted)}
+  select,button{background:#151924;color:var(--fg);border:1px solid var(--line);padding:8px 10px;border-radius:8px;cursor:pointer}
+  button:hover{border-color:#3a4252}
 
   .grid{
-    overflow:auto;            /* create scrollport for sticky to work */ /* [web:212] */
-    max-height:70vh;          /* bounded height for vertical scrolling */ /* [web:196] */
+    overflow:auto;            /* scrollport for sticky to work */ /* both sticky header and first col patterns */ /* [web:15][web:25] */
+    max-height:70vh;
     border:1px solid var(--line);
     border-radius:10px;
     background:#0f1115;
-    position:relative;        /* establish containing block for sticky */ /* [web:204] */
+    position:relative;        /* containing block for sticky */ /* [web:15] */
   }
 
-  table{width:100%;border-collapse:separate;border-spacing:0;margin:0} /* table base */ /* [web:193] */
-  th,td{border-bottom:1px solid var(--line);padding:8px 10px;vertical-align:middle;background:#0f1115} /* cells */ /* [web:193] */
-  tbody tr:hover td{background:#131824} /* hover row */ /* [web:193] */
+  table{width:100%;border-collapse:separate;border-spacing:0;margin:0}
+  th,td{border-bottom:1px solid var(--line);padding:8px 10px;vertical-align:middle;background:#0f1115}
+  tbody tr:hover td{background:#131824}
 
-  /* Frozen top row: apply sticky to TH cells with correct offset */
+  /* Frozen top row */
   thead th{
-    position:sticky;                  /* stick to .grid scrollport */ /* [web:193] */
-    top: var(--site-header-h);        /* offset equals measured header */ /* [web:192] */
-    z-index: 20;                      /* above body cells */ /* [web:220] */
-    background:#0f1115;               /* opaque background to cover rows */ /* [web:193] */
-    box-shadow: 0 1px 0 0 #2a2f3a, 0 4px 8px #00000033; /* visual separation */ /* [web:193] */
+    position:sticky;
+    top: var(--site-header-h);
+    z-index: 20;
+    background:#0f1115;
+    box-shadow: 0 1px 0 0 #2a2f3a, 0 4px 8px #00000033;
   }
 
-  /* Sticky first column: below header but above other body cells */
+  /* Sticky first column */
   #matrixTable th:first-child,
   #matrixTable td:first-child{
-    position:sticky; /* horizontal pin */ /* [web:220] */
+    position:sticky;
     left:0;
     z-index: 10;
     background:#0f1115;
     box-shadow: 1px 0 0 #2a2f3a;
     white-space:nowrap;
   }
-  #matrixTable thead th:first-child{ z-index: 25 } /* top-left precedence over first col */ /* [web:220] */
+  #matrixTable thead th:first-child{ z-index: 25 }
 
-  .seg{white-space:nowrap;color:#cbd1d9;font-weight:600} /* segment header text */ /* [web:193] */
-  .brandcell{display:flex;align-items:center;gap:8px;white-space:nowrap} /* brand cell layout */ /* [web:193] */
-  .brandname{color:#cbd1d9} /* brand name style */ /* [web:193] */
-  .tag{font-size:11px;padding:2px 6px;border:1px solid var(--line);border-radius:6px;background:#121725;color:#9aa0a6;margin-left:6px} /* variant tag */ /* [web:193] */
-  .model{color:var(--fg)} /* model text */ /* [web:193] */
-  .blank{color:#9aa0a6} /* blank styling */ /* [web:193] */
-  .note{font-size:12px;color:#9aa0a6;margin-top:8px} /* note text */ /* [web:196] */
-  .icon{width:18px;height:18px;display:inline-block;vertical-align:middle;filter: invert(90%) sepia(5%) saturate(200%) hue-rotate(180deg) brightness(95%) contrast(90%)} /* SVG icon tinting */ /* [web:205] */
+  .seg{white-space:nowrap;color:#cbd1d9;font-weight:600}
+  .brandcell{display:flex;align-items:center;gap:8px;white-space:nowrap}
+  .brandname{color:#cbd1d9}
+  .tag{font-size:11px;padding:2px 6px;border:1px solid var(--line);border-radius:6px;background:#121725;color:#9aa0a6;margin-left:6px}
+  .model{color:var(--fg)}
+  .blank{color:#9aa0a6}
+  .note{font-size:12px;color:#9aa0a6;margin-top:8px}
+  .icon{width:18px;height:18px;display:inline-block;vertical-align:middle;filter: invert(90%) sepia(5%) saturate(200%) hue-rotate(180deg) brightness(95%) contrast(90%)}
+
+  /* Group header row (OEM) */
+  .group-row td{
+    /* do NOT use colspan to avoid breaking sticky first column; fill with empty cells instead */ /* [web:12][web:15] */
+    background:#0d1018;
+    color:#cbd1d9;
+    font-weight:600;
+    border-bottom:1px solid var(--line);
+  }
+  .group-row td:first-child{
+    position:sticky;
+    left:0;
+    z-index:16;
+    box-shadow:1px 0 0 #2a2f3a;
+    white-space:nowrap;
+    background:#0d1018;
+  }
+  .group-toggle{
+    cursor:pointer;
+    user-select:none;
+    margin-right:8px;
+    display:inline-block;
+    width:1.1em;
+    text-align:center;
+    border:1px solid var(--line);
+    border-radius:4px;
+    background:#121725;
+    color:#9aa0a6;
+    line-height:1em;
+    padding:2px;
+  }
+  .group-meta{color:#9aa0a6;font-weight:500;margin-left:6px;font-size:12px}
+
+  /* A11y focus */
+  .group-toggle:focus{outline:2px solid #3a6df0;outline-offset:2px}
 </style>
 </head>
 <body>
 <header>
   <div class="wrap">
     <div class="row">
-      <h1>EU Competitor Model Matrix</h1> <!-- frozen header above grid --> <!-- [web:192] -->
+      <h1>EU Competitor Model Matrix</h1>
       <div class="controls">
         <label for="viewSelect">View:</label>
         <select id="viewSelect" aria-label="View selector">
@@ -92,28 +127,26 @@
 </header>
 
 <div class="wrap">
-  <div class="grid" id="grid"> <!-- scroll container for sticky --> <!-- [web:212] -->
+  <div class="grid" id="grid">
     <table id="matrixTable" aria-describedby="matrixNote">
       <thead></thead>
       <tbody></tbody>
     </table>
   </div>
-  <div class="note" id="matrixNote">Top row is frozen under the site header; first column stays visible; data content unchanged; icons from Simple Icons CDN.</div>
+  <div class="note" id="matrixNote">Top row is frozen under the site header; first column stays visible; groups can collapse; icons from Simple Icons CDN. [web:15][web:12]</div>
 </div>
 
 <script>
 (function(){
-  // Measure site header to set sticky offset so header cells do not overlap content. /* [web:192] */
+  // Measure site header height for sticky offset
   function setHeaderOffset(){
     const hdr = document.querySelector('header');
     const h = hdr ? Math.round(hdr.getBoundingClientRect().height) : 66;
     document.documentElement.style.setProperty('--site-header-h', h + 'px');
   }
 
-  // Simple Icons CDN for brand SVGs (public, versioned via @latest). /* [web:205] */
+  // Icons
   const ICON_CDN = 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/';
-
-  // Brand -> icon slug mapping for first-column icons. /* [web:136] */
   const ICON_SLUG = {
     "Audi":"audi","BMW":"bmw","Mercedes-Benz":"mercedes","Tesla":"tesla","Volvo":"volvo",
     "Lexus":"lexus","Genesis":"genesis","Porsche":"porsche","Jaguar":"jaguar","Land Rover":"landrover",
@@ -125,7 +158,7 @@
     "DS":"dsautomobiles","Jeep":"jeep","Fiat":"fiat","MG":"mg"
   };
 
-  // Column headers (generic segments).
+  // Segments
   const SEGMENTS = [
     "Compact Hatch/Sedan",
     "Mid-Size Sedan",
@@ -135,7 +168,7 @@
     "Large / 3-Row"
   ];
 
-  // Full data matrix (unchanged content).
+  // Data matrix
   const DATA = {
     "Audi": ["A3 Hatch / Sedan","A4 Sedan","A6 Sedan","Q3 SUV","Q5 SUV","Q7 SUV"],
     "BMW": ["1-Series Hatch","3-Series Sedan","5-Series Sedan","X1 SAV","X3 SAV","X5 SAV"],
@@ -187,6 +220,20 @@
     "MG": ["MG4","(Blank)","(Blank)","ZS","Marvel R","(Blank)"]
   };
 
+  // OEM group mapping
+  const GROUPS = {
+    "Audi":"VW Group","Volkswagen":"VW Group","Škoda":"VW Group","SEAT":"VW Group","Cupra":"VW Group","Porsche":"VW Group",
+    "BMW":"BMW Group",
+    "Mercedes-Benz":"Mercedes Group",
+    "Peugeot":"Stellantis","Citroën":"Stellantis","DS":"Stellantis","Opel":"Stellantis","Vauxhall":"Stellantis","Fiat":"Stellantis","Jeep":"Stellantis","Alfa Romeo":"Stellantis",
+    "Hyundai":"Hyundai Motor","Kia":"Hyundai Motor","Genesis":"Hyundai Motor",
+    "Toyota":"Toyota Group","Lexus":"Toyota Group",
+    "Nissan":"Renault–Nissan–Mitsubishi","Mitsubishi":"Renault–Nissan–Mitsubishi","Renault":"Renault Group","Dacia":"Renault Group",
+    "Jaguar":"JLR","Land Rover":"JLR",
+    "Volvo":"Geely Group","Polestar":"Geely Group","MG":"SAIC",
+    "Ford":"Ford","Mazda":"Mazda","Honda":"Honda","Suzuki":"Suzuki","BYD":"BYD","Nio":"Nio","Lucid":"Lucid","Tesla":"Tesla"
+  }; /* grouping logic; explicit map keeps control without colspan tricks [web:12][web:15] */
+
   // DOM refs
   const viewSelect = document.getElementById('viewSelect');
   const thead = document.querySelector('#matrixTable thead');
@@ -213,6 +260,23 @@
     const idx = Number(v.replace('seg',''));
     return { all:false, seg: (Number.isFinite(idx)&&idx>=0&&idx<6)?idx:0 };
   }
+  function groupKeyFor(base){
+    return GROUPS[base] || 'Other';
+  }
+
+  function groupedBases(){
+    const bases = baseBrands();
+    const byGroup = {};
+    bases.forEach(b=>{
+      const g = groupKeyFor(b);
+      (byGroup[g] ||= []).push(b);
+    });
+    const groupNames = Object.keys(byGroup).sort((a,b)=> a.localeCompare(b,'en',{sensitivity:'base'}));
+    return { groupNames, byGroup };
+  }
+
+  // Collapsed state memory
+  const collapsed = new Map(); // groupName -> boolean
 
   // Renderers
   function renderHeader(){
@@ -241,55 +305,118 @@
   function renderBody(){
     tbody.innerHTML = '';
     const {all, seg} = getView();
-    baseBrands().forEach(base => {
-      brandRows(base).forEach(key => {
-        const tr = document.createElement('tr');
+    const {groupNames, byGroup} = groupedBases();
 
-        // Brand cell with icon
-        const tdBrand = document.createElement('td');
-        const url = iconURL(base);
-        const img = url ? `<img class="icon" alt="${base}" src="${url}" onerror="this.style.display='none'">` : '';
-        tdBrand.innerHTML = `<div class="brandcell">${img}<span class="brandname">${base}</span>${key!==base?`<span class="tag">${key.replace(base,'').trim()}</span>`:''}</div>`;
-        tr.appendChild(tdBrand);
+    groupNames.forEach(groupName => {
+      // Group header row
+      const trG = document.createElement('tr');
+      trG.className = 'group-row';
+      trG.dataset.group = groupName;
 
-        // Segment cells
-        const models = DATA[key] || [];
-        if (all){
-          for (let i=0;i<6;i++){
+      const tdG = document.createElement('td');
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = 'group-toggle';
+      toggle.setAttribute('aria-expanded', (!collapsed.get(groupName)).toString());
+      toggle.setAttribute('aria-controls', `grp-${groupName.replace(/\W+/g,'_')}`);
+      toggle.textContent = collapsed.get(groupName) ? '+' : '–';
+
+      const label = document.createElement('span');
+      label.textContent = groupName;
+
+      const countBrands = byGroup[groupName].length;
+      const meta = document.createElement('span');
+      meta.className = 'group-meta';
+      meta.textContent = `(${countBrands} brand${countBrands>1?'s':''})`;
+
+      tdG.appendChild(toggle);
+      tdG.appendChild(label);
+      tdG.appendChild(meta);
+      trG.appendChild(tdG);
+
+      // Fill remaining columns without colspan to preserve sticky first column behavior
+      const colCount = all ? 6 : 1;
+      for (let i=0;i<colCount;i++){
+        const td = document.createElement('td');
+        td.textContent = '';
+        trG.appendChild(td);
+      }
+      tbody.appendChild(trG);
+
+      // Brand rows for this group
+      byGroup[groupName].forEach(base => {
+        brandRows(base).forEach(key => {
+          const tr = document.createElement('tr');
+          tr.dataset.inGroup = groupName;
+          tr.id = `grp-${groupName.replace(/\W+/g,'_')}`;
+          if (collapsed.get(groupName)) tr.style.display = 'none';
+
+          // Brand cell with icon
+          const tdBrand = document.createElement('td');
+          const url = iconURL(base);
+          const img = url ? `<img class="icon" alt="${base}" src="${url}" onerror="this.style.display='none'">` : '';
+          tdBrand.innerHTML = `<div class="brandcell">${img}<span class="brandname">${base}</span>${key!==base?`<span class="tag">${key.replace(base,'').trim()}</span>`:''}</div>`;
+          tr.appendChild(tdBrand);
+
+          // Segment cells
+          const models = DATA[key] || [];
+          if (all){
+            for (let i=0;i<6;i++){
+              const td = document.createElement('td');
+              const v = models[i] || '(Blank)';
+              td.innerHTML = v==='(Blank)' ? `<span class="blank">(Blank)</span>` : `<span class="model">${v}</span>`;
+              tr.appendChild(td);
+            }
+          } else {
             const td = document.createElement('td');
-            const v = models[i] || '(Blank)';
+            const v = models[seg] || '(Blank)';
             td.innerHTML = v==='(Blank)' ? `<span class="blank">(Blank)</span>` : `<span class="model">${v}</span>`;
             tr.appendChild(td);
           }
-        } else {
-          const td = document.createElement('td');
-          const v = models[seg] || '(Blank)';
-          td.innerHTML = v==='(Blank)' ? `<span class="blank">(Blank)</span>` : `<span class="model">${v}</span>`;
-          tr.appendChild(td);
+          tbody.appendChild(tr);
+        });
+      });
+
+      // Toggle behavior
+      toggle.addEventListener('click', ()=>{
+        const isCollapsed = collapsed.get(groupName) === true;
+        const nextState = !isCollapsed;
+        collapsed.set(groupName, nextState);
+        toggle.textContent = nextState ? '–' : '+';
+        toggle.setAttribute('aria-expanded', nextState.toString());
+
+        // show/hide rows until next group header
+        let n = trG.nextElementSibling;
+        while (n && !n.classList.contains('group-row')){
+          n.style.display = nextState ? '' : 'none';
+          n = n.nextElementSibling;
         }
-        tbody.appendChild(tr);
       });
     });
   }
 
-  // CSV export of current view
+  // CSV export includes group column
   function exportCSV(){
     const rows = [];
     const {all, seg} = getView();
     if (all){
-      rows.push(['Brand', ...SEGMENTS]);
+      rows.push(['Brand Group','Brand', ...SEGMENTS]);
     } else {
-      rows.push(['Brand', SEGMENTS[seg]]);
+      rows.push(['Brand Group','Brand', SEGMENTS[seg]]);
     }
 
-    baseBrands().forEach(base => {
-      brandRows(base).forEach(key => {
-        const models = DATA[key] || [];
-        if (all){
-          rows.push([base + (key!==base?` ${key.replace(base,'')}`:''), ...models.map(x=> x||'(Blank)')]);
-        } else {
-          rows.push([base + (key!==base?` ${key.replace(base,'')}`:''), models[seg] || '(Blank)']);
-        }
+    const {groupNames, byGroup} = groupedBases();
+    groupNames.forEach(groupName=>{
+      byGroup[groupName].forEach(base=>{
+        brandRows(base).forEach(key=>{
+          const models = DATA[key] || [];
+          const brandLabel = base + (key!==base?` ${key.replace(base,'')}`:'');
+          if (all){
+            rows.push([groupName, brandLabel, ...models.map(x=> x||'(Blank)')]);
+          } else {
+            rows.push([groupName, brandLabel, models[seg] || '(Blank)']);
+          }
+        });
       });
     });
 
@@ -309,18 +436,18 @@
 
   // Init
   function start(){
-    setHeaderOffset();                // compute sticky offset under site header /* [web:192] */
-    renderHeader();                   // build header cells with sticky th /* [web:193] */
-    renderBody();                     // build body rows /* [web:193] */
-    window.addEventListener('resize', setHeaderOffset, {passive:true}); // keep offset in sync /* [web:192] */
-    document.getElementById('viewSelect').addEventListener('change', () => { renderHeader(); renderBody(); }); // toggle views /* [web:193] */
-    document.getElementById('downloadCsvBtn').addEventListener('click', exportCSV); // export current view /* [web:196] */
+    setHeaderOffset();
+    renderHeader();
+    renderBody();
+    window.addEventListener('resize', setHeaderOffset, {passive:true});
+    document.getElementById('viewSelect').addEventListener('change', () => { renderHeader(); renderBody(); });
+    document.getElementById('downloadCsvBtn').addEventListener('click', exportCSV);
   }
 
   if (document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', start); // ensure DOM exists before init /* [web:196] */
+    document.addEventListener('DOMContentLoaded', start);
   } else {
-    start(); // DOM already ready /* [web:196] */
+    start();
   }
 })();
 </script>
