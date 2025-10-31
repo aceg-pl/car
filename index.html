@@ -1,1 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Audi Competitor Model Matrix (EU)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  :root{
+    --bg:#0f1115; --fg:#e8eaed; --muted:#9aa0a6; --line:#2a2f3a; --accent:#5e9cff;
+    --chip:#1a73e81a; --warn:#ffb74d33;
+  }
+  body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Arial;}
+  header{position:sticky;top:0;background:linear-gradient(180deg,#0f1115 65%,#0f1115cc 100%);backdrop-filter: blur(6px);z-index:10;border-bottom:1px solid var(--line);}
+  .wrap{max-width:1200px;margin:0 auto;padding:16px;}
+  h1{font-size:18px;margin:0 0 8px 0;font-weight:600}
+  .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+  label{color:var(--muted)}
+  select,button{background:#151924;color:var(--fg);border:1px solid var(--line);padding:8px 10px;border-radius:8px}
+  button.primary{border-color:#2760ff66;background:linear-gradient(180deg,#1a2440,#141a30);box-shadow: inset 0 1px 0 #ffffff12}
+  .hint{color:var(--muted);font-size:12px}
+  table{width:100%;border-collapse:separate;border-spacing:0;margin-top:14px}
+  th,td{border-bottom:1px solid var(--line);padding:8px 10px;vertical-align:top}
+  th{position:sticky;top:77px;background:#0f1115;border-bottom:1px solid var(--line);z-index:5}
+  thead tr:first-child th{top:77px}
+  tbody tr:hover td{background:#131824}
+  .seg{white-space:nowrap;color:#cbd1d9;font-weight:600}
+  .brand{white-space:nowrap;color:#cbd1d9}
+  .model{color:var(--fg)}
+  .blank{color:var(--muted)}
+  .pill{display:inline-block;padding:.15rem .5rem;border-radius:999px;background:var(--chip);border:1px solid #2a65ff33;color:#9ec1ff;font-size:11px;margin-left:6px}
+  .note{font-size:12px;color:var(--muted);margin-top:8px}
+  .grid{overflow:auto;max-height:70vh;border:1px solid var(--line);border-radius:10px}
+  .tag{font-size:11px;padding:2px 6px;border:1px solid var(--line);border-radius:6px;background:#121725;color:#9aa0a6;margin-left:6px}
+  .controls-right{margin-left:auto;display:flex;gap:8px}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>Audi Competitor Model Matrix (EU)</h1>
+    <div class="controls">
+      <label for="brandSelect">Choose brand for column headers:</label>
+      <select id="brandSelect"></select>
+      <span class="hint">Select a brand to show its models as the six column headers by segment; rows compare all brands.</span>
+      <div class="controls-right">
+        <button id="downloadCsvBtn">Export CSV</button>
+        <button id="resetBtn">Reset</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="grid">
+    <table id="matrixTable">
+      <thead></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <div class="note">Segments: A3 Compact, A4 Mid-Size, A6 Executive, Q3 Compact SUV, Q5 Mid-Size SUV, Q7 Large/3-Row.</div>
+</div>
+
+<script>
+(() => {
+  const segments = [
+    "A3 Compact Hatch/Sedan",
+    "A4 Mid-Size Sedan",
+    "A6 Executive Sedan",
+    "Q3 Compact SUV",
+    "Q5 Mid-Size SUV",
+    "Q7 Large SUV / 3-Row"
+  ];
+
+  // Base dataset
+  const data = {
+    "Audi": ["A3 Hatch / Sedan","A4 Sedan","A6 Sedan","Q3 SUV","Q5 SUV","Q7 SUV"],
+    "BMW": ["1-Series Hatch","3-Series Sedan","5-Series Sedan","X1 SAV","X3 SAV","X5 SAV"],
+    "BMW (Alt)": ["2-Series Gran Coupe","i4 Gran Coupe (EV)","i5 Sedan (EV)","iX1 (EV)","iX3 (EV)","X7 SAV"],
+    "BMW (Addl)": ["(Blank)","(Blank)","8-Series Gran Coupe","X2 SAV","X4 SAV","(Blank)"],
+    "Mercedes-Benz": ["A-Class Hatch","C-Class Sedan","E-Class Sedan","GLA SUV","GLC SUV","GLE SUV"],
+    "Mercedes-Benz (Alt)": ["CLA-Class Sedan","CLE-Class","EQE Sedan (EV)","EQA (EV)","EQC (EV)","EQS SUV (EV)"],
+    "Mercedes-Benz (Addl)": ["(Blank)","(Blank)","S-Class Sedan","(Blank)","GLC Coupe","GLS SUV"],
+    "Tesla": ["Model 3 (Entry)","Model 3 (Core)","Model S","Model Y (Entry)","Model Y (Core)","Model X"],
+    "Volvo": ["C40 (EV)","S60 Sedan","S90 Sedan","XC40 SUV","XC60 SUV","XC90 SUV"],
+    "Volvo (Alt)": ["EX30 (EV)","(Blank)","(Blank)","EX40 (EV)","(Blank)","EX90 (EV)"],
+    "Lexus": ["CT 200h","IS Sedan","ES Sedan","UX Crossover","NX Crossover","RX SUV"],
+    "Lexus (Alt)": ["(Blank)","(Blank)","LS Sedan","(Blank)","RZ (EV)","TX SUV"],
+    "Genesis": ["(Blank)","G70 Sedan","G80 Sedan","GV60 (EV)","GV70 SUV","GV80 SUV"],
+    "Porsche": ["(Blank)","(Blank)","Panamera","Macan","Cayenne","Cayenne Coupe"],
+    "Jaguar": ["(Blank)","XE Sedan","XF Sedan","E-Pace SUV","F-Pace SUV","I-Pace (EV)"],
+    "Land Rover": ["(Blank)","(Blank)","(Blank)","Discovery Sport","Range Rover Velar","Discovery"],
+    "Land Rover (Alt)": ["(Blank)","(Blank)","(Blank)","Range Rover Evoque","Defender 90/110/130","Range Rover Sport"],
+    "Alfa Romeo": ["Giulietta","Giulia Sedan","(Blank)","Tonale","Stelvio SUV","(Blank)"],
+    "Polestar": ["2 Sedan","2 Sedan","3 SUV (Large EV)","4 SUV","(Blank)","(Blank)"],
+    "Nio":
 
