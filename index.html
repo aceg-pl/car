@@ -7,31 +7,29 @@
 <style>
   :root{
     --bg:#0f1115; --fg:#e8eaed; --muted:#9aa0a6; --line:#2a2f3a; --accent:#5e9cff;
-    --chip:#1a73e81a; --warn:#ffb74d33;
+    --chip:#1a73e81a;
   }
-  body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Arial;}
-  header{position:sticky;top:0;background:linear-gradient(180deg,#0f1115 65%,#0f1115cc 100%);backdrop-filter: blur(6px);z-index:10;border-bottom:1px solid var(--line);}
-  .wrap{max-width:1200px;margin:0 auto;padding:16px;}
+  body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial;}
+  header{position:sticky;top:0;background:#0f1115;backdrop-filter:blur(6px);z-index:10;border-bottom:1px solid var(--line)}
+  .wrap{max-width:1200px;margin:0 auto;padding:16px}
   h1{font-size:18px;margin:0 0 8px 0;font-weight:600}
   .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
   label{color:var(--muted)}
   select,button{background:#151924;color:var(--fg);border:1px solid var(--line);padding:8px 10px;border-radius:8px}
-  button.primary{border-color:#2760ff66;background:linear-gradient(180deg,#1a2440,#141a30);box-shadow: inset 0 1px 0 #ffffff12}
   .hint{color:var(--muted);font-size:12px}
   table{width:100%;border-collapse:separate;border-spacing:0;margin-top:14px}
   th,td{border-bottom:1px solid var(--line);padding:8px 10px;vertical-align:top}
   th{position:sticky;top:77px;background:#0f1115;border-bottom:1px solid var(--line);z-index:5}
-  thead tr:first-child th{top:77px}
   tbody tr:hover td{background:#131824}
   .seg{white-space:nowrap;color:#cbd1d9;font-weight:600}
   .brand{white-space:nowrap;color:#cbd1d9}
   .model{color:var(--fg)}
   .blank{color:var(--muted)}
   .pill{display:inline-block;padding:.15rem .5rem;border-radius:999px;background:var(--chip);border:1px solid #2a65ff33;color:#9ec1ff;font-size:11px;margin-left:6px}
-  .note{font-size:12px;color:var(--muted);margin-top:8px}
   .grid{overflow:auto;max-height:70vh;border:1px solid var(--line);border-radius:10px}
   .tag{font-size:11px;padding:2px 6px;border:1px solid var(--line);border-radius:6px;background:#121725;color:#9aa0a6;margin-left:6px}
   .controls-right{margin-left:auto;display:flex;gap:8px}
+  .note{font-size:12px;color:#9aa0a6;margin-top:8px}
 </style>
 </head>
 <body>
@@ -41,7 +39,7 @@
     <div class="controls">
       <label for="brandSelect">Choose brand for column headers:</label>
       <select id="brandSelect"></select>
-      <span class="hint">Select a brand to show its models as the six column headers by segment; rows compare all brands.</span>
+      <span class="hint">Pick a brand to label the six columns; rows list all brands’ models by segment.</span>
       <div class="controls-right">
         <button id="downloadCsvBtn">Export CSV</button>
         <button id="resetBtn">Reset</button>
@@ -61,7 +59,7 @@
 </div>
 
 <script>
-(() => {
+(function initFactory(){
   const segments = [
     "A3 Compact Hatch/Sedan",
     "A4 Mid-Size Sedan",
@@ -71,7 +69,6 @@
     "Q7 Large SUV / 3-Row"
   ];
 
-  // Base dataset
   const data = {
     "Audi": ["A3 Hatch / Sedan","A4 Sedan","A6 Sedan","Q3 SUV","Q5 SUV","Q7 SUV"],
     "BMW": ["1-Series Hatch","3-Series Sedan","5-Series Sedan","X1 SAV","X3 SAV","X5 SAV"],
@@ -92,5 +89,130 @@
     "Land Rover (Alt)": ["(Blank)","(Blank)","(Blank)","Range Rover Evoque","Defender 90/110/130","Range Rover Sport"],
     "Alfa Romeo": ["Giulietta","Giulia Sedan","(Blank)","Tonale","Stelvio SUV","(Blank)"],
     "Polestar": ["2 Sedan","2 Sedan","3 SUV (Large EV)","4 SUV","(Blank)","(Blank)"],
-    "Nio":
+    "Nio": ["ET5","ET5 Touring","ET7 Sedan","EL6 SUV","EL7 SUV","ES8 SUV"],
+    "BYD": ["Dolphin","Seal Sedan","(Blank)","Atto 3","Seal U SUV","Tang SUV"],
+    "Lucid": ["(Blank)","(Blank)","Air Sedan","(Blank)","(Blank)","(Blank)"],
+    "Volkswagen": ["Golf Hatch","Passat Sedan/Estate","Arteon","T-Roc","Tiguan","Touareg"],
+    "Škoda": ["Octavia","Superb","Superb","Kamiq","Karoq","Kodiaq"],
+    "Škoda (Alt)": ["Enyaq (EV)","(Blank)","(Blank)","(Blank)","Enyaq Coupe (EV)","(Blank)"],
+    "Cupra": ["Leon","Leon","(Blank)","Formentor","Tavascan (EV)","(Blank)"],
+    "Cupra (Alt)": ["Born (EV)","(Blank)","(Blank)","(Blank)","(Blank)","(Blank)"],
+    "Peugeot": ["308 Hatch","508 Sedan/SW","(Blank)","2008","3008","5008"],
+    "Citroën": ["C4","C5 X","(Blank)","C3 Aircross","C5 Aircross","(Blank)"],
+    "Hyundai": ["i30","Ioniq 6 (EV)","(Blank)","Kona","Tucson","Santa Fe"],
+    "Kia": ["Ceed","EV6 (EV)","(Blank)","Niro","Sportage","Sorento"],
+    "Mazda": ["3","6","(Blank)","CX-30","CX-5","CX-60/CX-80"]
+  };
 
+  const primaryBrand = "Audi";
+  let brandSelect, thead, tbody;
+
+  function getAllBaseBrandNames(){
+    const set = new Set();
+    Object.keys(data).forEach(b => set.add(b.replace(/\s*\(.*\)$/, '')));
+    return Array.from(set).sort((a,b)=> a.localeCompare(b,'en',{sensitivity:'base'}));
+  }
+  function rowsForBrand(base){
+    const keys = Object.keys(data).filter(k => k === base || k.startsWith(base + ' '));
+    const order = k => k.includes('(Alt)') ? 1 : k.includes('(Addl)') ? 2 : 0;
+    return keys.sort((a,b)=> order(a)-order(b));
+  }
+  function headerForBrand(base){
+    const keys = rowsForBrand(base);
+    return data[keys[0]] || data[primaryBrand];
+  }
+  function renderHeader(base){
+    thead.innerHTML = '';
+    const tr1 = document.createElement('tr');
+    const th0 = document.createElement('th'); th0.textContent = 'Brand'; tr1.appendChild(th0);
+    segments.forEach(seg => {
+      const th = document.createElement('th');
+      th.innerHTML = `<div class="seg">${seg}<span class="pill">${base}</span></div>`;
+      tr1.appendChild(th);
+    });
+    thead.appendChild(tr1);
+  }
+  function renderBody(){
+    tbody.innerHTML = '';
+    const allBases = getAllBaseBrandNames();
+    allBases.forEach(b => {
+      rowsForBrand(b).forEach(key => {
+        const tr = document.createElement('tr');
+        const tdBrand = document.createElement('td');
+        tdBrand.innerHTML = `<span class="brand">${b}</span>${key!==b?`<span class="tag">${key.replace(b,'').trim()}</span>`:''}`;
+        tr.appendChild(tdBrand);
+        const models = data[key] || [];
+        segments.forEach((_, i) => {
+          const td = document.createElement('td');
+          const val = models[i] || '(Blank)';
+          td.innerHTML = val === '(Blank)' ? `<span class="blank">(Blank)</span>` : `<span class="model">${val}</span>`;
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+    });
+  }
+  function populateSelector(){
+    if(!brandSelect) return;
+    brandSelect.innerHTML = '';
+    const bases = getAllBaseBrandNames();
+    bases.forEach(b => {
+      const opt = document.createElement('option');
+      opt.value = b; opt.textContent = b;
+      brandSelect.appendChild(opt);
+    });
+    if (bases.includes(primaryBrand)) {
+      brandSelect.value = primaryBrand;
+    } else if (bases.length) {
+      brandSelect.selectedIndex = 0;
+    }
+  }
+  function exportCSV(){
+    const rows = [];
+    rows.push(['Brand', ...segments]);
+    const allBases = getAllBaseBrandNames();
+    allBases.forEach(b => {
+      rowsForBrand(b).forEach(key => {
+        const models = data[key] || [];
+        rows.push([b + (key!==b?` ${key.replace(b,'')}`:''), ...segments.map((_,i)=> models[i]||'(Blank)')]);
+      });
+    });
+    const csv = rows.map(r => r.map(x => /[",\n]/.test(x)? `"${x.replace(/"/g,'""')}"` : x).join(',')).join('\n');
+    const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'Audi_Competitor_Model_Matrix_EU_2025_view.csv';
+    document.body.appendChild(a);
+    a.click(); a.remove();
+  }
+  function reset(){
+    brandSelect.value = primaryBrand;
+    renderHeader(primaryBrand);
+    renderBody();
+  }
+
+  function start(){
+    brandSelect = document.getElementById('brandSelect');
+    thead = document.querySelector('#matrixTable thead');
+    tbody = document.querySelector('#matrixTable tbody');
+    if(!brandSelect || !thead || !tbody){
+      console.error('Matrix initialization failed: missing DOM nodes');
+      return;
+    }
+    populateSelector();
+    renderHeader(brandSelect.value || primaryBrand);
+    renderBody();
+    brandSelect.addEventListener('change', () => renderHeader(brandSelect.value));
+    document.getElementById('downloadCsvBtn').addEventListener('click', exportCSV);
+    document.getElementById('resetBtn').addEventListener('click', reset);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start);
+  } else {
+    start(); // DOM already loaded
+  }
+})();
+</script>
+</body>
+</html>
