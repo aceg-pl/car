@@ -9,20 +9,18 @@
     --bg:#0f1115; --fg:#e8eaed; --muted:#9aa0a6; --line:#2a2f3a;
     --chip:#1a73e81a; --site-header-h: 66px;
   }
-  /* Layout and theming */
   body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial;}
   header{position:sticky;top:0;background:#0f1115;z-index:20;border-bottom:1px solid var(--line)}
   .wrap{max-width:1200px;margin:0 auto;padding:16px}
   h1{font-size:18px;margin:0 0 8px 0;font-weight:600}
-  .controls-right{margin-left:auto;display:flex;gap:8px}
-  button{background:#151924;color:var(--fg);border:1px solid var(--line);padding:8px 10px;border-radius:8px;cursor:pointer}
+  .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+  label{color:var(--muted)}
+  select,button{background:#151924;color:var(--fg);border:1px solid var(--line);padding:8px 10px;border-radius:8px;cursor:pointer}
   button:hover{border-color:#3a4252}
-  /* Table container */
   .grid{overflow:auto;max-height:70vh;border:1px solid var(--line);border-radius:10px;background:#0f1115}
   table{width:100%;border-collapse:separate;border-spacing:0;margin-top:0}
   th,td{border-bottom:1px solid var(--line);padding:8px 10px;vertical-align:middle;background:#0f1115}
   tbody tr:hover td{background:#131824}
-  /* Sticky header (account for site header height) */
   thead th{
     position:sticky;
     top: var(--site-header-h);
@@ -30,7 +28,6 @@
     background:#0f1115;
     box-shadow: 0 1px 0 0 #2a2f3a, 0 4px 8px #00000033;
   }
-  /* Sticky first column */
   #matrixTable th:first-child,
   #matrixTable td:first-child{
     position:sticky;
@@ -38,6 +35,7 @@
     z-index: 4;
     background:#0f1115;
     box-shadow: 1px 0 0 #2a2f3a;
+    white-space:nowrap;
   }
   #matrixTable thead th:first-child{ z-index: 6; }
   .seg{white-space:nowrap;color:#cbd1d9;font-weight:600}
@@ -52,10 +50,24 @@
 </head>
 <body>
 <header>
-  <div class="wrap" style="display:flex;gap:12px;align-items:center">
-    <h1 style="flex:1 1 auto">Audi Competitor Model Matrix (EU)</h1>
-    <div class="controls-right">
-      <button id="downloadCsvBtn">Export CSV</button>
+  <div class="wrap">
+    <div style="display:flex;gap:12px;align-items:center">
+      <h1 style="flex:1 1 auto">Audi Competitor Model Matrix (EU)</h1>
+      <div class="controls">
+        <label for="viewSelect">View:</label>
+        <select id="viewSelect">
+          <option value="all">All models</option>
+          <option value="seg0">Compact Hatch/Sedan</option>
+          <option value="seg1">Mid-Size Sedan</option>
+          <option value="seg2">Executive Sedan</option>
+          <option value="seg3">Compact SUV</option>
+          <option value="seg4">Mid-Size SUV</option>
+          <option value="seg5">Large / 3-Row</option>
+        </select>
+      </div>
+      <div class="controls">
+        <button id="downloadCsvBtn">Export CSV</button>
+      </div>
     </div>
   </div>
 </header>
@@ -63,83 +75,39 @@
 <div class="wrap">
   <div class="grid">
     <table id="matrixTable">
-      <thead>
-        <!-- Spacer row prevents initial jump/clipping under sticky header -->
-        <tr aria-hidden="true" style="height:0;line-height:0">
-          <th style="padding:0;border:0;"></th>
-          <th style="padding:0;border:0;"></th>
-          <th style="padding:0;border:0;"></th>
-          <th style="padding:0;border:0;"></th>
-          <th style="padding:0;border:0;"></th>
-          <th style="padding:0;border:0;"></th>
-          <th style="padding:0;border:0;"></th>
-        </tr>
-        <tr>
-          <th>Brand</th>
-          <th><div class="seg">Compact Hatch/Sedan</div></th>
-          <th><div class="seg">Mid-Size Sedan</div></th>
-          <th><div class="seg">Executive Sedan</div></th>
-          <th><div class="seg">Compact SUV</div></th>
-          <th><div class="seg">Mid-Size SUV</div></th>
-          <th><div class="seg">Large / 3-Row</div></th>
-        </tr>
-      </thead>
+      <thead></thead>
       <tbody></tbody>
     </table>
   </div>
-  <div class="note">Columns are generic segments; brand icons are shown before names in the first column.</div>
+  <div class="note">Switch the view to show either all six segments or a single segment column next to the Brand column.</div>
 </div>
 
 <script>
 (function(){
-  // Measure header height and set sticky offset variable
   function setHeaderOffset(){
     const hdr = document.querySelector('header');
     const h = hdr ? Math.round(hdr.getBoundingClientRect().height) : 66;
     document.documentElement.style.setProperty('--site-header-h', h + 'px');
   }
 
-  // Simple Icons CDN for brand logos (SVG)
-  // Simple Icons project provides brand SVGs via CDN; slugs below map to filenames. [Source: Simple Icons]
-  const ICON_CDN = 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/';
+  const ICON_CDN = 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/'; // Simple Icons CDN [web:136][web:137]
 
   const iconSlug = {
-    "Audi":"audi",
-    "BMW":"bmw",
-    "Mercedes-Benz":"mercedes",
-    "Tesla":"tesla",
-    "Volvo":"volvo",
-    "Lexus":"lexus",
-    "Genesis":"genesis",
-    "Porsche":"porsche",
-    "Jaguar":"jaguar",
-    "Land Rover":"landrover",
-    "Alfa Romeo":"alfaromeo",
-    "Polestar":"polestar",
-    "Nio":"nio",
-    "BYD":"byd",
-    "Lucid":"lucid",
-    "Volkswagen":"volkswagen",
-    "Škoda":"skoda",
-    "Cupra":"cupra",
-    "Peugeot":"peugeot",
-    "Citroën":"citroen",
-    "Hyundai":"hyundai",
-    "Kia":"kia",
-    "Mazda":"mazda"
+    "Audi":"audi","BMW":"bmw","Mercedes-Benz":"mercedes","Tesla":"tesla","Volvo":"volvo",
+    "Lexus":"lexus","Genesis":"genesis","Porsche":"porsche","Jaguar":"jaguar","Land Rover":"landrover",
+    "Alfa Romeo":"alfaromeo","Polestar":"polestar","Nio":"nio","BYD":"byd","Lucid":"lucid",
+    "Volkswagen":"volkswagen","Škoda":"skoda","Cupra":"cupra","Peugeot":"peugeot","Citroën":"citroen",
+    "Hyundai":"hyundai","Kia":"kia","Mazda":"mazda"
   };
 
-  // Segments (generic headers)
   const segments = [
-    "A3 Compact Hatch/Sedan",
-    "A4 Mid-Size Sedan",
-    "A6 Executive Sedan",
-    "Q3 Compact SUV",
-    "Q5 Mid-Size SUV",
-    "Q7 Large SUV / 3-Row"
+    "Compact Hatch/Sedan",     // maps to data index 0
+    "Mid-Size Sedan",          // 1
+    "Executive Sedan",         // 2
+    "Compact SUV",             // 3
+    "Mid-Size SUV",            // 4
+    "Large / 3-Row"            // 5
   ];
-
-  // Dataset: base rows and variant rows
   const data = {
     "Audi": ["A3 Hatch / Sedan","A4 Sedan","A6 Sedan","Q3 SUV","Q5 SUV","Q7 SUV"],
     "BMW": ["1-Series Hatch","3-Series Sedan","5-Series Sedan","X1 SAV","X3 SAV","X5 SAV"],
@@ -175,6 +143,10 @@
     "Mazda": ["3","6","(Blank)","CX-30","CX-5","CX-60/CX-80"]
   };
 
+  const viewSelect = document.getElementById('viewSelect');
+  const thead = document.querySelector('#matrixTable thead');
+  const tbody = document.querySelector('#matrixTable tbody');
+
   function getAllBaseBrandNames(){
     const set = new Set();
     Object.keys(data).forEach(b => set.add(b.replace(/\s*\(.*\)$/, '')));
@@ -190,24 +162,72 @@
     return slug ? ICON_CDN + slug + '.svg' : null;
   }
 
-  function buildTable(){
-    const tbody = document.querySelector('#matrixTable tbody');
+  function currentView(){
+    const val = viewSelect.value;
+    if (val === 'all') return { mode:'all', segIndex:null };
+    const idx = Number(val.replace('seg',''));
+    return { mode:'single', segIndex: isNaN(idx) ? 0 : idx };
+  }
+
+  function renderHeader(){
+    thead.innerHTML = '';
+    // Spacer row to avoid jump under sticky header
+    const spacer = document.createElement('tr');
+    spacer.setAttribute('aria-hidden','true');
+    spacer.style.height = '0';
+    spacer.style.lineHeight = '0';
+    for(let i=0;i<7;i++){
+      const th = document.createElement('th');
+      th.style.padding='0'; th.style.border='0';
+      spacer.appendChild(th);
+    }
+    thead.appendChild(spacer);
+
+    const tr = document.createElement('tr');
+    const thBrand = document.createElement('th');
+    thBrand.textContent = 'Brand';
+    tr.appendChild(thBrand);
+
+    const view = currentView();
+    if (view.mode === 'all') {
+      segments.forEach(seg => {
+        const th = document.createElement('th');
+        th.innerHTML = `<div class="seg">${seg}</div>`;
+        tr.appendChild(th);
+      });
+    } else {
+      const th = document.createElement('th');
+      th.innerHTML = `<div class="seg">${segments[view.segIndex]}</div>`;
+      tr.appendChild(th);
+    }
+    thead.appendChild(tr);
+  }
+
+  function renderBody(){
     tbody.innerHTML = '';
+    const view = currentView();
     const bases = getAllBaseBrandNames();
     bases.forEach(base => {
       rowsForBrand(base).forEach(key => {
         const tr = document.createElement('tr');
 
-        // Brand cell with icon
+        // Brand cell with icon and variant tag
         const tdBrand = document.createElement('td');
         const url = iconURL(base);
         const img = url ? `<img class="icon" alt="${base}" src="${url}" onerror="this.style.display='none'">` : '';
         tdBrand.innerHTML = `<div class="brandcell">${img}<span class="brandname">${base}</span>${key!==base?`<span class="tag">${key.replace(base,'').trim()}</span>`:''}</div>`;
         tr.appendChild(tdBrand);
 
-        // Segment cells
         const models = data[key] || [];
-        for(let i=0;i<6;i++){
+        if (view.mode === 'all') {
+          for(let i=0;i<6;i++){
+            const td = document.createElement('td');
+            const val = models[i] || '(Blank)';
+            td.innerHTML = val === '(Blank)' ? `<span class="blank">(Blank)</span>` : `<span class="model">${val}</span>`;
+            tr.appendChild(td);
+          }
+        } else {
+          const i = view.segIndex;
           const td = document.createElement('td');
           const val = models[i] || '(Blank)';
           td.innerHTML = val === '(Blank)' ? `<span class="blank">(Blank)</span>` : `<span class="model">${val}</span>`;
@@ -220,27 +240,43 @@
 
   function exportCSV(){
     const rows = [];
-    rows.push(['Brand','Compact Hatch/Sedan','Mid-Size Sedan','Executive Sedan','Compact SUV','Mid-Size SUV','Large / 3-Row']);
+    const view = currentView();
+
+    if (view.mode === 'all') {
+      rows.push(['Brand', ...segments]);
+    } else {
+      rows.push(['Brand', segments[view.segIndex]]);
+    }
+
     const bases = getAllBaseBrandNames();
     bases.forEach(base => {
       rowsForBrand(base).forEach(key => {
         const models = data[key] || [];
-        rows.push([base + (key!==base?` ${key.replace(base,'')}`:''), ...models.map(x=> x||'(Blank)')]);
+        if (view.mode === 'all') {
+          rows.push([base + (key!==base?` ${key.replace(base,'')}`:''), ...models.map(x=> x||'(Blank)')]);
+        } else {
+          const val = models[view.segIndex] || '(Blank)';
+          rows.push([base + (key!==base?` ${key.replace(base,'')}`:''), val]);
+        }
       });
     });
+
     const csv = rows.map(r => r.map(x => /[",\n]/.test(x)? `"${x.replace(/"/g,'""')}"` : x).join(',')).join('\n');
     const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = 'Audi_Competitor_Model_Matrix_EU_2025_view.csv';
+    a.download = view.mode==='all' ? 'Audi_Competitor_Model_Matrix_EU_2025_all.csv'
+                                   : `Audi_Competitor_Model_Matrix_EU_2025_${segments[view.segIndex].replace(/\\s+/g,'_')}.csv`;
     document.body.appendChild(a);
     a.click(); a.remove();
   }
 
   function start(){
     setHeaderOffset();
-    buildTable();
+    renderHeader();
+    renderBody();
     window.addEventListener('resize', setHeaderOffset, {passive:true});
+    viewSelect.addEventListener('change', () => { renderHeader(); renderBody(); });
     document.getElementById('downloadCsvBtn').addEventListener('click', exportCSV);
   }
 
