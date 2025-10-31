@@ -7,71 +7,71 @@
 <style>
   :root{
     --bg:#0f1115; --fg:#e8eaed; --muted:#9aa0a6; --line:#2a2f3a;
-    --site-header-h: 66px; /* updated at runtime for sticky offset */
+    --site-header-h: 66px; /* updated at runtime */
   }
 
-  html,body{height:100%}
-  body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial}
+  html,body{height:100%} /* ensure proper layout and measurements */ /* [web:196] */
+  body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial} /* [web:196] */
 
-  header{position:sticky;top:0;background:#0f1115;z-index:30;border-bottom:1px solid var(--line)}
-  .wrap{max-width:1200px;margin:0 auto;padding:16px}
-  .row{display:flex;gap:12px;align-items:center}
-  h1{font-size:18px;margin:0 0 8px 0;font-weight:600;flex:1 1 auto}
+  header{position:sticky;top:0;background:#0f1115;z-index:30;border-bottom:1px solid var(--line)} /* sticky site header above table */ /* [web:192] */
+  .wrap{max-width:1200px;margin:0 auto;padding:16px} /* layout container */ /* [web:196] */
+  .row{display:flex;gap:12px;align-items:center} /* header row */ /* [web:196] */
+  h1{font-size:18px;margin:0 0 8px 0;font-weight:600;flex:1 1 auto} /* title */ /* [web:196] */
 
-  .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
-  label{color:var(--muted)}
-  select,button{background:#151924;color:var(--fg);border:1px solid var(--line);padding:8px 10px;border-radius:8px;cursor:pointer}
-  button:hover{border-color:#3a4252}
+  .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center} /* controls wrapper */ /* [web:196] */
+  label{color:var(--muted)} /* label style */ /* [web:196] */
+  select,button{background:#151924;color:var(--fg);border:1px solid var(--line);padding:8px 10px;border-radius:8px;cursor:pointer} /* inputs */ /* [web:196] */
+  button:hover{border-color:#3a4252} /* hover affordance */ /* [web:196] */
 
   .grid{
-    overflow:auto;
-    max-height:70vh;
+    overflow:auto;            /* create scrollport for sticky to work */ /* [web:212] */
+    max-height:70vh;          /* bounded height for vertical scrolling */ /* [web:196] */
     border:1px solid var(--line);
     border-radius:10px;
     background:#0f1115;
-    position:relative; /* sticky elements calculate against this scrollport */
+    position:relative;        /* establish containing block for sticky */ /* [web:204] */
   }
 
-  table{width:100%;border-collapse:separate;border-spacing:0;margin:0}
-  th,td{border-bottom:1px solid var(--line);padding:8px 10px;vertical-align:middle;background:#0f1115}
-  tbody tr:hover td{background:#131824}
+  table{width:100%;border-collapse:separate;border-spacing:0;margin:0} /* table base */ /* [web:193] */
+  th,td{border-bottom:1px solid var(--line);padding:8px 10px;vertical-align:middle;background:#0f1115} /* cells */ /* [web:193] */
+  tbody tr:hover td{background:#131824} /* hover row */ /* [web:193] */
 
-  /* Frozen top row (thead cells) */
+  /* Frozen top row: apply sticky to TH cells with correct offset */
   thead th{
-    position:sticky;
-    top: var(--site-header-h);
-    z-index: 20;
-    background:#0f1115;            /* opaque to cover rows under it */
-    box-shadow: 0 1px 0 0 #2a2f3a, 0 4px 8px #00000033;
+    position:sticky;                  /* stick to .grid scrollport */ /* [web:193] */
+    top: var(--site-header-h);        /* offset equals measured header */ /* [web:192] */
+    z-index: 20;                      /* above body cells */ /* [web:220] */
+    background:#0f1115;               /* opaque background to cover rows */ /* [web:193] */
+    box-shadow: 0 1px 0 0 #2a2f3a, 0 4px 8px #00000033; /* visual separation */ /* [web:193] */
   }
 
-  /* Sticky first column */
+  /* Sticky first column: below header but above other body cells */
   #matrixTable th:first-child,
   #matrixTable td:first-child{
-    position:sticky;
+    position:sticky; /* horizontal pin */ /* [web:220] */
     left:0;
     z-index: 10;
     background:#0f1115;
     box-shadow: 1px 0 0 #2a2f3a;
     white-space:nowrap;
   }
-  #matrixTable thead th:first-child{ z-index: 25 } /* top-left precedence */
+  #matrixTable thead th:first-child{ z-index: 25 } /* top-left precedence over first col */ /* [web:220] */
 
-  .seg{white-space:nowrap;color:#cbd1d9;font-weight:600}
-  .brandcell{display:flex;align-items:center;gap:8px;white-space:nowrap}
-  .brandname{color:#cbd1d9}
-  .tag{font-size:11px;padding:2px 6px;border:1px solid var(--line);border-radius:6px;background:#121725;color:#9aa0a6;margin-left:6px}
-  .model{color:var(--fg)}
-  .blank{color:#9aa0a6}
-  .note{font-size:12px;color:#9aa0a6;margin-top:8px}
-  .icon{width:18px;height:18px;display:inline-block;vertical-align:middle;filter: invert(90%) sepia(5%) saturate(200%) hue-rotate(180deg) brightness(95%) contrast(90%)}
+  .seg{white-space:nowrap;color:#cbd1d9;font-weight:600} /* segment header text */ /* [web:193] */
+  .brandcell{display:flex;align-items:center;gap:8px;white-space:nowrap} /* brand cell layout */ /* [web:193] */
+  .brandname{color:#cbd1d9} /* brand name style */ /* [web:193] */
+  .tag{font-size:11px;padding:2px 6px;border:1px solid var(--line);border-radius:6px;background:#121725;color:#9aa0a6;margin-left:6px} /* variant tag */ /* [web:193] */
+  .model{color:var(--fg)} /* model text */ /* [web:193] */
+  .blank{color:#9aa0a6} /* blank styling */ /* [web:193] */
+  .note{font-size:12px;color:#9aa0a6;margin-top:8px} /* note text */ /* [web:196] */
+  .icon{width:18px;height:18px;display:inline-block;vertical-align:middle;filter: invert(90%) sepia(5%) saturate(200%) hue-rotate(180deg) brightness(95%) contrast(90%)} /* SVG icon tinting */ /* [web:205] */
 </style>
 </head>
 <body>
 <header>
   <div class="wrap">
     <div class="row">
-      <h1>EU Competitor Model Matrix</h1>
+      <h1>EU Competitor Model Matrix</h1> <!-- frozen header above grid --> <!-- [web:192] -->
       <div class="controls">
         <label for="viewSelect">View:</label>
         <select id="viewSelect" aria-label="View selector">
@@ -92,28 +92,28 @@
 </header>
 
 <div class="wrap">
-  <div class="grid" id="grid">
+  <div class="grid" id="grid"> <!-- scroll container for sticky --> <!-- [web:212] -->
     <table id="matrixTable" aria-describedby="matrixNote">
       <thead></thead>
       <tbody></tbody>
     </table>
   </div>
-  <div class="note" id="matrixNote">Top row is frozen; brand icons are fetched from a public icon CDN. Columns show generic segments; data content unchanged.</div>
+  <div class="note" id="matrixNote">Top row is frozen under the site header; first column stays visible; data content unchanged; icons from Simple Icons CDN.</div>
 </div>
 
 <script>
 (function(){
-  // Measure header and set CSS var for correct sticky offset
+  // Measure site header to set sticky offset so header cells do not overlap content. /* [web:192] */
   function setHeaderOffset(){
     const hdr = document.querySelector('header');
     const h = hdr ? Math.round(hdr.getBoundingClientRect().height) : 66;
     document.documentElement.style.setProperty('--site-header-h', h + 'px');
   }
 
-  // Simple Icons CDN for brand SVGs
-  const ICON_CDN = 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/'; // [web:136][web:199]
+  // Simple Icons CDN for brand SVGs (public, versioned via @latest). /* [web:205] */
+  const ICON_CDN = 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/';
 
-  // Brand slug map
+  // Brand -> icon slug mapping for first-column icons. /* [web:136] */
   const ICON_SLUG = {
     "Audi":"audi","BMW":"bmw","Mercedes-Benz":"mercedes","Tesla":"tesla","Volvo":"volvo",
     "Lexus":"lexus","Genesis":"genesis","Porsche":"porsche","Jaguar":"jaguar","Land Rover":"landrover",
@@ -125,7 +125,7 @@
     "DS":"dsautomobiles","Jeep":"jeep","Fiat":"fiat","MG":"mg"
   };
 
-  // Segments (column headers)
+  // Column headers (generic segments).
   const SEGMENTS = [
     "Compact Hatch/Sedan",
     "Mid-Size Sedan",
@@ -135,7 +135,7 @@
     "Large / 3-Row"
   ];
 
-  // Data matrix (unchanged content)
+  // Full data matrix (unchanged content).
   const DATA = {
     "Audi": ["A3 Hatch / Sedan","A4 Sedan","A6 Sedan","Q3 SUV","Q5 SUV","Q7 SUV"],
     "BMW": ["1-Series Hatch","3-Series Sedan","5-Series Sedan","X1 SAV","X3 SAV","X5 SAV"],
@@ -245,7 +245,7 @@
       brandRows(base).forEach(key => {
         const tr = document.createElement('tr');
 
-        // Brand cell
+        // Brand cell with icon
         const tdBrand = document.createElement('td');
         const url = iconURL(base);
         const img = url ? `<img class="icon" alt="${base}" src="${url}" onerror="this.style.display='none'">` : '';
@@ -272,7 +272,7 @@
     });
   }
 
-  // CSV export
+  // CSV export of current view
   function exportCSV(){
     const rows = [];
     const {all, seg} = getView();
@@ -293,7 +293,10 @@
       });
     });
 
-    const csv = rows.map(r => r.map(s => /[",\n]/.test(String(s)) ? `"${String(s).replace(/"/g,'""')}"` : String(s)).join(',')).join('\n');
+    const csv = rows.map(r => r.map(s => {
+      const t = String(s);
+      return /[",\n]/.test(t) ? `"${t.replace(/"/g,'""')}"` : t;
+    }).join(',')).join('\n');
     const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
@@ -306,17 +309,18 @@
 
   // Init
   function start(){
-    setHeaderOffset();
-    renderHeader();
-    renderBody();
-    window.addEventListener('resize', setHeaderOffset, {passive:true});
-    document.getElementById('viewSelect').addEventListener('change', () => { renderHeader(); renderBody(); });
-    document.getElementById('downloadCsvBtn').addEventListener('click', exportCSV);
+    setHeaderOffset();                // compute sticky offset under site header /* [web:192] */
+    renderHeader();                   // build header cells with sticky th /* [web:193] */
+    renderBody();                     // build body rows /* [web:193] */
+    window.addEventListener('resize', setHeaderOffset, {passive:true}); // keep offset in sync /* [web:192] */
+    document.getElementById('viewSelect').addEventListener('change', () => { renderHeader(); renderBody(); }); // toggle views /* [web:193] */
+    document.getElementById('downloadCsvBtn').addEventListener('click', exportCSV); // export current view /* [web:196] */
   }
+
   if (document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', start);
+    document.addEventListener('DOMContentLoaded', start); // ensure DOM exists before init /* [web:196] */
   } else {
-    start();
+    start(); // DOM already ready /* [web:196] */
   }
 })();
 </script>
