@@ -6,38 +6,26 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
   :root{
-    --bg:#0f1115; --fg:#e8eaed; --muted:#9aa0a6; --line:#2a2f3a;
-    --site-header-h: 66px;
+    --bg:#0f1115;--fg:#e8eaed;--muted:#9aa0a6;--line:#2a2f3a;
   }
-
-  html,body{height:100%}
-  body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial}
+  body{margin:0;background:var(--bg);color:var(--fg);font:14px system-ui}
   header{position:sticky;top:0;background:#0f1115;z-index:30;border-bottom:1px solid var(--line)}
   .wrap{max-width:1200px;margin:0 auto;padding:16px}
   .row{display:flex;gap:12px;align-items:center}
-  h1{font-size:18px;margin:0 0 8px 0;font-weight:600;flex:1 1 auto}
-  .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
-  label{color:var(--muted)}
-  select,button{background:#151924;color:var(--fg);border:1px solid var(--line);padding:8px 10px;border-radius:8px;cursor:pointer}
-  button:hover{border-color:#3a4252}
-  .grid{overflow:auto;max-height:70vh;border:1px solid var(--line);border-radius:10px;background:#0f1115;position:relative;-webkit-overflow-scrolling: touch;}
-  table{width:100%;border-collapse:separate;border-spacing:0;margin:0}
-  th,td{border-bottom:1px solid var(--line);padding:8px 10px;vertical-align:middle;background:#0f1115}
-  tbody tr:hover td{background:#131824}
-  thead th{position:sticky;top:0;z-index:20;background:#0f1115;box-shadow:0 1px 0 0 #2a2f3a;}
-  #matrixTable th:first-child,#matrixTable td:first-child{position:sticky;left:0;z-index:10;background:#0f1115;box-shadow:1px 0 0 #2a2f3a;white-space:nowrap;}
-  #matrixTable thead th:first-child{z-index:25}
+  h1{font-size:18px;margin:0 0 8px 0;font-weight:600;flex:1}
+  select,button{background:#151924;color:var(--fg);border:1px solid var(--line);padding:8px 10px;border-radius:8px}
+  .grid{overflow:auto;max-height:70vh;border:1px solid var(--line);border-radius:10px;background:#0f1115}
+  table{width:100%;border-collapse:separate;border-spacing:0}
+  th,td{border-bottom:1px solid var(--line);padding:8px 10px;vertical-align:middle}
+  thead th{position:sticky;top:0;background:#0f1115;z-index:20}
+  #matrixTable th:first-child,#matrixTable td:first-child{position:sticky;left:0;background:#0f1115;z-index:10;white-space:nowrap}
   .seg{white-space:nowrap;color:#cbd1d9;font-weight:600}
   .brandcell{display:flex;align-items:center;gap:8px;white-space:nowrap}
   .brandname{color:#cbd1d9;text-decoration:none}
   .brandname:hover{text-decoration:underline}
-  .tag{font-size:11px;padding:2px 6px;border:1px solid var(--line);border-radius:6px;background:#121725;color:#9aa0a6;margin-left:6px}
-  .model{color:var(--fg)}
-  .blank{color:#9aa0a6}
-  .icon{width:18px;height:18px;display:inline-block;vertical-align:middle;filter:invert(90%) sepia(5%) saturate(200%) hue-rotate(180deg) brightness(95%) contrast(90%)}
-  .group-row td{background:#1e2536;color:#ff4d4d;font-weight:600;border-bottom:1px solid var(--line);}
-  .group-row td:first-child{position:sticky;left:0;z-index:16;box-shadow:1px 0 0 #2a2f3a;white-space:nowrap;background:#1e2536;padding:8px 6px;}
-  .group-toggle{cursor:pointer;user-select:none;margin-right:4px;display:inline-block;width:1.1em;text-align:center;border:1px solid var(--line);border-radius:4px;background:#121725;color:#9aa0a6;line-height:1em;padding:2px;}
+  .icon{width:18px;height:18px;filter:invert(90%) sepia(5%) saturate(200%) hue-rotate(180deg) brightness(95%) contrast(90%)}
+  .group-row td{background:#1e2536;color:#ff4d4d;font-weight:600}
+  .group-toggle{cursor:pointer;border:1px solid var(--line);border-radius:4px;background:#121725;color:#9aa0a6;margin-right:4px}
 </style>
 </head>
 <body>
@@ -45,9 +33,8 @@
   <div class="wrap">
     <div class="row">
       <h1>EU Auto Competitor Model Matrix</h1>
-      <div class="controls">
-        <label for="viewSelect">View:</label>
-        <select id="viewSelect" aria-label="View selector">
+      <label>View: 
+        <select id="viewSelect">
           <option value="all">All models</option>
           <option value="seg0">Compact Hatch/Sedan</option>
           <option value="seg1">Mid-Size Sedan</option>
@@ -56,55 +43,62 @@
           <option value="seg4">Mid-Size SUV</option>
           <option value="seg5">Large / 3-Row</option>
         </select>
-      </div>
-      <div class="controls"><button id="downloadCsvBtn" type="button">Export CSV</button></div>
+      </label>
+      <button id="downloadCsvBtn">Export CSV</button>
     </div>
   </div>
 </header>
 
 <div class="wrap">
-  <div class="grid" id="grid">
-    <table id="matrixTable">
-      <thead></thead>
-      <tbody></tbody>
-    </table>
-  </div>
+  <div class="grid"><table id="matrixTable"><thead></thead><tbody></tbody></table></div>
 </div>
 
 <script>
 (function(){
-  const ICON_CDN='https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/';
-  const ICON_SLUG={ "Audi":"audi","BMW":"bmw","Mercedes":"mercedes","Tesla":"tesla","Volvo":"volvo","Lexus":"lexus","Genesis":"genesis","Porsche":"porsche","Jaguar":"jaguar","Land Rover":"landrover","Alfa Romeo":"alfaromeo","Polestar":"polestar","Nio":"nio","BYD":"byd","Lucid":"lucid","Volkswagen":"volkswagen","Škoda":"skoda","Cupra":"cupra","Peugeot":"peugeot","Citroën":"citroen","Hyundai":"hyundai","Kia":"kia","Mazda":"mazda","Ford":"ford","Honda":"honda","Toyota":"toyota","Renault":"renault","Opel":"opel","Vauxhall":"vauxhall","Dacia":"dacia","SEAT":"seat","Nissan":"nissan","Suzuki":"suzuki","Mitsubishi":"mitsubishi","Subaru":"subaru","DS":"dsautomobiles","Jeep":"jeep","Fiat":"fiat","MG":"mg"};
+const ICON_CDN='https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/';
+const ICON_SLUG={"Audi":"audi","BMW":"bmw","Mercedes":"mercedes","Tesla":"tesla","Volvo":"volvo","Lexus":"lexus","Genesis":"genesis","Porsche":"porsche","Jaguar":"jaguar","Land Rover":"landrover","Alfa Romeo":"alfaromeo","Polestar":"polestar","Nio":"nio","BYD":"byd","Lucid":"lucid","Volkswagen":"volkswagen","Škoda":"skoda","Cupra":"cupra","Peugeot":"peugeot","Citroën":"citroen","Hyundai":"hyundai","Kia":"kia","Mazda":"mazda","Ford":"ford","Honda":"honda","Toyota":"toyota","Renault":"renault","Opel":"opel","Vauxhall":"vauxhall","Dacia":"dacia","SEAT":"seat","Nissan":"nissan","Suzuki":"suzuki","Mitsubishi":"mitsubishi","Subaru":"subaru","DS":"dsautomobiles","Jeep":"jeep","Fiat":"fiat","MG":"mg"};
+const BRAND_PL_URL={"Audi":"https://www.audi.pl/","BMW":"https://www.bmw.pl/","Mercedes":"https://www.mercedes-benz.pl/","Tesla":"https://www.tesla.com/pl_pl/","Volvo":"https://www.volvocars.com/pl/","Lexus":"https://www.lexus-polska.pl/","Genesis":"https://www.genesis.com/pl/","Porsche":"https://www.porsche.pl/","Jaguar":"https://www.jaguar.pl/","Land Rover":"https://www.landrover.pl/","Alfa Romeo":"https://www.alfaromeo.pl/","Polestar":"https://www.polestar.com/pl/","Nio":"https://www.nio.com/","BYD":"https://bydauto.pl/","Lucid":"https://lucidmotors.com/","Volkswagen":"https://www.volkswagen.pl/","Škoda":"https://www.skoda.pl/","Cupra":"https://www.cupraofficial.pl/","Peugeot":"https://www.peugeot.pl/","Citroën":"https://www.citroen.pl/","Hyundai":"https://www.hyundai.pl/","Kia":"https://www.kia.com/pl/","Mazda":"https://www.mazda.pl/","Ford":"https://www.ford.pl/","Honda":"https://www.honda.pl/","Toyota":"https://www.toyota.pl/","Renault":"https://www.renault.pl/","Opel":"https://www.opel.pl/","Vauxhall":"https://www.opel.pl/","Dacia":"https://www.dacia.pl/","SEAT":"https://www.seat.pl/","Nissan":"https://www.nissan.pl/","Suzuki":"https://auto.suzuki.pl/","Mitsubishi":"https://www.mitsubishi.pl/","Subaru":"https://www.subaru.pl/","DS":"https://www.dsautomobiles.pl/","Jeep":"https://www.jeep.pl/","Fiat":"https://www.fiat.pl/","MG":"https://mgmotor.pl/"};
+const SEGMENTS=["Compact Hatch/Sedan","Mid-Size Sedan","Executive Sedan","Compact SUV","Mid-Size SUV","Large / 3-Row"];
+const DATA={"Audi":["A3","A4","A6","Q3","Q5","Q7"],"BMW":["1-Series","3-Series","5-Series","X1","X3","X5"],"BMW (Alt)":["2-Series","i4","i5","iX1","iX3","X7"],"Mercedes":["A-Class","C-Class","E-Class","GLA","GLC","GLE"],"Mercedes (Alt)":["CLA","CLE","EQE","EQA","EQC","EQS"],"Tesla":["Model 3","Model 3 Long","Model S","Model Y","Model Y Long","Model X"],"Volvo":["C40","S60","S90","XC40","XC60","XC90"],"Lexus":["CT 200h","IS","ES","UX","NX","RX"],"Genesis":["(Blank)","G70","G80","GV60","GV70","GV80"],"Porsche":["(Blank)","(Blank)","Panamera","Macan","Cayenne","Cayenne Coupe"],"Jaguar":["(Blank)","XE","XF","E-Pace","F-Pace","I-Pace"],"Land Rover":["(Blank)","(Blank)","(Blank)","Discovery Sport","Velar","Discovery"],"Alfa Romeo":["Giulietta","Giulia","(Blank)","Tonale","Stelvio","(Blank)"],"Polestar":["2","2","3","4","(Blank)","(Blank)"],"BYD":["Dolphin","Seal","(Blank)","Atto 3","Seal U","Tang"],"Volkswagen":["Golf","Passat","Arteon","T-Roc","Tiguan","Touareg"],"Škoda":["Octavia","Superb","Superb","Kamiq","Karoq","Kodiaq"],"Cupra":["Leon","Leon","(Blank)","Formentor","Tavascan","(Blank)"],"Peugeot":["308","508","(Blank)","2008","3008","5008"],"Citroën":["C4","C5 X","(Blank)","C3 Aircross","C5 Aircross","(Blank)"],"Hyundai":["i30","Ioniq 6","(Blank)","Kona","Tucson","Santa Fe"],"Kia":["Ceed","EV6","(Blank)","Niro","Sportage","Sorento"],"Mazda":["3","6","(Blank)","CX-30","CX-5","CX-60"],"Ford":["(Blank)","(Blank)","(Blank)","Puma","Kuga","Explorer"],"Honda":["Civic","(Blank)","(Blank)","HR-V","CR-V","(Blank)"],"Toyota":["Corolla","Camry","(Blank)","C-HR","RAV4","Highlander"],"Renault":["Clio","(Blank)","(Blank)","Captur","Austral","Espace"],"Opel":["Corsa","Astra","(Blank)","Mokka","Grandland","(Blank)"],"Dacia":["Sandero","(Blank)","(Blank)","Duster","Jogger","(Blank)"],"SEAT":["Ibiza","Leon","(Blank)","Arona","Ateca","(Blank)"],"Nissan":["(Blank)","(Blank)","(Blank)","Juke","Qashqai","X-Trail"],"Suzuki":["Swift","(Blank)","(Blank)","Vitara","S-Cross","(Blank)"],"Mitsubishi":["(Blank)","(Blank)","(Blank)","ASX","Eclipse Cross","(Blank)"],"Subaru":["(Blank)","(Blank)","(Blank)","Crosstrek","Forester","(Blank)"],"DS":["DS 3","DS 4","(Blank)","DS 3","DS 7","(Blank)"],"Jeep":["(Blank)","(Blank)","(Blank)","Avenger","Compass","(Blank)"],"Fiat":["500e","(Blank)","(Blank)","600e","500X","(Blank)"],"MG":["MG4","(Blank)","(Blank)","ZS","Marvel R","(Blank)"]};
+const GROUPS={"Audi":"VW Group","Volkswagen":"VW Group","Škoda":"VW Group","SEAT":"VW Group","Cupra":"VW Group","Porsche":"VW Group","BMW":"BMW Group","Mercedes":"Mercedes Group","Peugeot":"Stellantis","Citroën":"Stellantis","DS":"Stellantis","Opel":"Stellantis","Fiat":"Stellantis","Jeep":"Stellantis","Alfa Romeo":"Stellantis","Hyundai":"Hyundai Motor","Kia":"Hyundai Motor","Genesis":"Hyundai Motor","Toyota":"Toyota Group","Lexus":"Toyota Group","Nissan":"Nissan–Mitsubishi","Mitsubishi":"Nissan–Mitsubishi","Renault":"Renault Group","Dacia":"Renault Group","Jaguar":"JLR","Land Rover":"JLR","Volvo":"Geely Group","Polestar":"Geely Group","MG":"SAIC","Ford":"Ford","Mazda":"Mazda","Honda":"Honda","BYD":"BYD","Tesla":"Tesla"};
 
-  // ✅ added Polish official brand links
-  const BRAND_PL_URL={
-    "Audi":"https://www.audi.pl/","BMW":"https://www.bmw.pl/","Mercedes":"https://www.mercedes-benz.pl/","Tesla":"https://www.tesla.com/pl_pl/","Volvo":"https://www.volvocars.com/pl/","Lexus":"https://www.lexus-polska.pl/","Genesis":"https://www.genesis.com/pl/","Porsche":"https://www.porsche.pl/","Jaguar":"https://www.jaguar.pl/","Land Rover":"https://www.landrover.pl/","Alfa Romeo":"https://www.alfaromeo.pl/","Polestar":"https://www.polestar.com/pl/","Nio":"https://www.nio.com/","BYD":"https://bydauto.pl/","Lucid":"https://lucidmotors.com/","Volkswagen":"https://www.volkswagen.pl/","Škoda":"https://www.skoda.pl/","Cupra":"https://www.cupraofficial.pl/","Peugeot":"https://www.peugeot.pl/","Citroën":"https://www.citroen.pl/","Hyundai":"https://www.hyundai.pl/","Kia":"https://www.kia.com/pl/","Mazda":"https://www.mazda.pl/","Ford":"https://www.ford.pl/","Honda":"https://www.honda.pl/","Toyota":"https://www.toyota.pl/","Renault":"https://www.renault.pl/","Opel":"https://www.opel.pl/","Vauxhall":"https://www.opel.pl/","Dacia":"https://www.dacia.pl/","SEAT":"https://www.seat.pl/","Nissan":"https://www.nissan.pl/","Suzuki":"https://auto.suzuki.pl/","Mitsubishi":"https://www.mitsubishi.pl/","Subaru":"https://www.subaru.pl/","DS":"https://www.dsautomobiles.pl/","Jeep":"https://www.jeep.pl/","Fiat":"https://www.fiat.pl/","MG":"https://mgmotor.pl/"
-  };
+const viewSelect=document.getElementById('viewSelect');
+const thead=document.querySelector('#matrixTable thead');
+const tbody=document.querySelector('#matrixTable tbody');
+const collapsed=new Map();
 
-  const SEGMENTS=["Compact Hatch/Sedan","Mid-Size Sedan","Executive Sedan","Compact SUV","Mid-Size SUV","Large / 3-Row"];
+function iconURL(b){const s=ICON_SLUG[b];return s?ICON_CDN+s+'.svg':null;}
+function grouped(){const out={};Object.keys(DATA).forEach(b=>{const g=GROUPS[b]||'Other';(out[g] ||= []).push(b)});return out;}
 
-  // your full DATA + GROUPS blocks stay exactly as before
-  const DATA = /* your full dataset from original code */;
-  const GROUPS = /* your original GROUPS mapping */;
+function renderHeader(){
+thead.innerHTML='';const tr=document.createElement('tr');
+tr.innerHTML='<th>Brand</th>'+SEGMENTS.map(s=>`<th><div class="seg">${s}</div></th>`).join('');
+thead.appendChild(tr);
+}
 
-  // --- unchanged logic except the brand link part ---
-  function iconURL(base){const slug=ICON_SLUG[base];return slug?ICON_CDN+slug+'.svg':null;}
-  const collapsed=new Map();
+function renderBody(){
+tbody.innerHTML='';const groups=grouped();
+for(const g of Object.keys(groups).sort()){
+const trG=document.createElement('tr');trG.className='group-row';const td=document.createElement('td');
+const btn=document.createElement('button');btn.className='group-toggle';btn.textContent='–';td.append(btn,g);trG.appendChild(td);
+for(let i=0;i<6;i++){trG.appendChild(document.createElement('td'));}
+tbody.appendChild(trG);
 
-  function renderHeader(){/* same as original */}
-  function renderBody(){
-    const tbody=document.querySelector('#matrixTable tbody');tbody.innerHTML='';
-    const thead=document.querySelector('#matrixTable thead');thead.innerHTML='';
-    // ... unchanged logic except below where brand cell is built ...
-    // find and replace only this original line:
-    // tdBrand.innerHTML = `<div class="brandcell">${img}<span class="brandname">${base}</span>${key!==base?`<span class="tag">${key.replace(base,'').trim()}</span>`:''}</div>`;
-    // with this:
-    const href=BRAND_PL_URL[base];
-    const brandEl=href?`<a class="brandname" href="${href}" target="_blank" rel="noopener">${base}</a>`:`<span class="brandname">${base}</span>`;
-    tdBrand.innerHTML=`<div class="brandcell">${img}${brandEl}${key!==base?`<span class="tag">${key.replace(base,'').trim()}</span>`:''}</div>`;
-  }
+for(const b of groups[g]){
+const tr=document.createElement('tr');const tdb=document.createElement('td');
+const ico=iconURL(b);const img=ico?`<img class="icon" src="${ico}" alt="${b}">`:'';
+const href=BRAND_PL_URL[b];const brandEl=href?`<a class="brandname" href="${href}" target="_blank" rel="noopener">${b}</a>`:`<span class="brandname">${b}</span>`;
+tdb.innerHTML=`<div class="brandcell">${img}${brandEl}</div>`;tr.appendChild(tdb);
+const m=DATA[b];for(let i=0;i<6;i++){const td=document.createElement('td');const v=m[i]||'(Blank)';td.innerHTML=v==='(Blank)'?`<span class="blank">${v}</span>`:`<span class="model">${v}</span>`;tr.appendChild(td);}
+tbody.appendChild(tr);
+}
+btn.onclick=()=>{const hide=btn.textContent==='–';btn.textContent=hide?'+':'–';let n=trG.nextElementSibling;while(n&&!n.classList.contains('group-row')){n.style.display=hide?'none':'';n=n.nextElementSibling;}};
+}
+}
 
-  // everything else (renderHeader, exportCSV, etc.) stays unchanged
+viewSelect.onchange=()=>{renderHeader();renderBody();};
+document.getElementById('downloadCsvBtn').onclick=()=>{let csv='Brand,Seg1,Seg2,Seg3,Seg4,Seg5,Seg6\n';for(const [b,m] of Object.entries(DATA)){csv+=b+','+m.join(',')+'\n';}const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv]));a.download='matrix.csv';a.click();};
+renderHeader();renderBody();
 })();
 </script>
 </body>
