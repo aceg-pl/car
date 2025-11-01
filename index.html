@@ -29,9 +29,17 @@
   .model{color:var(--fg)}
   .blank{color:#9aa0a6}
   .icon{width:18px;height:18px;display:inline-block;filter:invert(90%) sepia(5%) saturate(200%) hue-rotate(180deg) brightness(95%) contrast(90%)}
-  .group-row td{background:#1e2536;color:#ff4d4d;font-weight:600;padding:4px 4px;line-height:0.7}
-  .group-row td:first-child{position:sticky;left:0;background:#1e2536;z-index:16;box-shadow:1px 0 0 #2a2f3a}
-  .group-toggle{cursor:pointer;border:1px solid var(--line);border-radius:4px;background:#121725;color:#9aa0a6;margin-right:4px}
+  .group-row td{
+    background:#1e2536;
+    color:#ff4d4d;
+    font-weight:600;
+    border-bottom:1px solid var(--line);
+    padding:4px 6px;     /* 75% of normal */
+    line-height:1.1;
+    cursor:pointer;      /* clickable */
+  }
+  .group-row.collapsed td{background:#171c29;color:#ff8080;}
+  .group-arrow{margin-right:6px;font-size:12px;display:inline-block;width:12px;text-align:center;}
 </style>
 </head>
 <body>
@@ -69,87 +77,76 @@ const BRAND_PL_URL={"Audi":"https://www.audi.pl/","BMW":"https://www.bmw.pl/","M
 const SEGMENTS=["Compact Hatch/Sedan","Mid-Size Sedan","Executive Sedan","Compact SUV","Mid-Size SUV","Large / 3-Row"];
 
 const DATA={
-"Audi":["A3 Hatch / Sedan","A4 Sedan","A6 Sedan","Q3 SUV","Q5 SUV","Q7 SUV"],
-"BMW":["1-Series Hatch","3-Series Sedan","5-Series Sedan","X1 SAV","X3 SAV","X5 SAV"],
-"BMW (Alt)":["2-Series Gran Coupe","i4 Gran Coupe (EV)","i5 Sedan (EV)","iX1 (EV)","iX3 (EV)","X7 SAV"],
-"Mercedes":["A-Class Hatch","C-Class Sedan","E-Class Sedan","GLA SUV","GLC SUV","GLE SUV"],
-"Mercedes (Alt)":["CLA-Class Sedan","CLE-Class","EQE Sedan (EV)","EQA (EV)","EQC (EV)","EQS SUV (EV)"],
-"Tesla":["Model 3 (Entry)","Model 3 (Core)","Model S","Model Y (Entry)","Model Y (Core)","Model X"],
-"Volvo":["C40 (EV)","S60 Sedan","S90 Sedan","XC40 SUV","XC60 SUV","XC90 SUV"],
-"Lexus":["CT 200h","IS Sedan","ES Sedan","UX Crossover","NX Crossover","RX SUV"],
-"Genesis":["(Blank)","G70 Sedan","G80 Sedan","GV60 (EV)","GV70 SUV","GV80 SUV"],
-"Porsche":["(Blank)","(Blank)","Panamera","Macan","Cayenne","Cayenne Coupe"],
-"Jaguar":["(Blank)","XE Sedan","XF Sedan","E-Pace SUV","F-Pace SUV","I-Pace (EV)"],
-"Land Rover":["(Blank)","(Blank)","(Blank)","Discovery Sport","Range Rover Velar","Discovery"],
-"Alfa Romeo":["Giulietta","Giulia Sedan","(Blank)","Tonale","Stelvio SUV","(Blank)"],
-"Polestar":["2 Sedan","2 Sedan","3 SUV (Large EV)","4 SUV","(Blank)","(Blank)"],
-"BYD":["Dolphin","Seal Sedan","(Blank)","Atto 3","Seal U SUV","Tang SUV"],
-"Volkswagen":["Golf Hatch","Passat Sedan/Estate","Arteon","T-Roc","Tiguan","Touareg"],
-"Škoda":["Octavia","Superb","Superb","Kamiq","Karoq","Kodiaq"],
-"Cupra":["Leon","Leon","(Blank)","Formentor","Tavascan (EV)","(Blank)"],
-"Peugeot":["308 Hatch","508 Sedan/SW","(Blank)","2008","3008","5008"],
-"Citroën":["C4","C5 X","(Blank)","C3 Aircross","C5 Aircross","(Blank)"],
-"Hyundai":["i30","Ioniq 6 (EV)","(Blank)","Kona","Tucson","Santa Fe"],
-"Kia":["Ceed","EV6 (EV)","(Blank)","Niro","Sportage","Sorento"],
-"Mazda":["3","6","(Blank)","CX-30","CX-5","CX-60/CX-80"],
-"Ford":["(Blank)","(Blank)","(Blank)","Puma / Explorer (EV)","Kuga / Mustang Mach-E","(Blank)"],
-"Honda":["Civic","(Blank)","(Blank)","HR-V / ZR-V","CR-V","(Blank)"],
-"Toyota":["Corolla","Camry","(Blank)","C-HR","RAV4 / bZ4X","Highlander"],
-"Renault":["Clio / Mégane E-Tech","(Blank)","(Blank)","Captur / Austral","Austral / Espace","(Blank)"],
-"Opel":["Corsa","Astra","(Blank)","Mokka","Grandland","(Blank)"],
-"Dacia":["Sandero","(Blank)","(Blank)","Duster","Jogger","(Blank)"],
-"SEAT":["Ibiza / Leon","Leon","(Blank)","Arona","Ateca","(Blank)"],
-"Nissan":["(Blank)","(Blank)","(Blank)","Juke","Qashqai","X-Trail"],
-"Suzuki":["Swift","(Blank)","(Blank)","Vitara","S-Cross","(Blank)"],
-"Mitsubishi":["(Blank)","(Blank)","(Blank)","ASX","Eclipse Cross","(Blank)"],
-"Subaru":["(Blank)","(Blank)","(Blank)","Crosstrek","Forester","(Blank)"],
-"DS":["DS 3","DS 4","(Blank)","DS 3","DS 7","(Blank)"],
-"Jeep":["(Blank)","(Blank)","(Blank)","Avenger","Compass","(Blank)"],
-"Fiat":["500e / 600e","(Blank)","(Blank)","600e","500X (legacy)","(Blank)"],
-"MG":["MG4","(Blank)","(Blank)","ZS","Marvel R","(Blank)"]
+  "Audi":["A3","A4","A6","Q3","Q5","Q7"],
+  "BMW":["1-Series","3-Series","5-Series","X1","X3","X5"],
+  "Mercedes":["A-Class","C-Class","E-Class","GLA","GLC","GLE"],
+  "Renault":["Clio","Megane","Talisman","Captur","Austral","Espace"],
+  "Opel":["Corsa","Astra","Insignia","Mokka","Grandland","Zafira"],
+  "Toyota":["Corolla","Camry","Crown","C-HR","RAV4","Highlander"],
+  "Kia":["Ceed","K5","Stinger","Niro","Sportage","Sorento"],
+  "Hyundai":["i30","i40","Sonata","Kona","Tucson","Santa Fe"],
+  "Peugeot":["308","408","508","2008","3008","5008"]
 };
 
-const GROUPS={"Audi":"VW Group","Volkswagen":"VW Group","Škoda":"VW Group","SEAT":"VW Group","Cupra":"VW Group","Porsche":"VW Group","BMW":"BMW Group","Mercedes":"Mercedes Group","Peugeot":"Stellantis","Citroën":"Stellantis","DS":"Stellantis","Opel":"Stellantis","Fiat":"Stellantis","Jeep":"Stellantis","Alfa Romeo":"Stellantis","Hyundai":"Hyundai Motor","Kia":"Hyundai Motor","Genesis":"Hyundai Motor","Toyota":"Toyota Group","Lexus":"Toyota Group","Nissan":"Nissan–Mitsubishi","Mitsubishi":"Nissan–Mitsubishi","Renault":"Renault Group","Dacia":"Renault Group","Jaguar":"JLR","Land Rover":"JLR","Volvo":"Geely Group","Polestar":"Geely Group","MG":"SAIC","Ford":"Ford","Mazda":"Mazda","Honda":"Honda","BYD":"BYD","Tesla":"Tesla"};
+const GROUPS={"Audi":"VW Group","BMW":"BMW Group","Mercedes":"Mercedes Group","Renault":"Renault Group","Opel":"Stellantis","Toyota":"Toyota Group","Kia":"Hyundai Motor","Hyundai":"Hyundai Motor","Peugeot":"Stellantis"};
 
 function iconURL(b){const s=ICON_SLUG[b];return s?ICON_CDN+s+'.svg':null;}
 function groupKeyFor(base){return GROUPS[base]||'Other';}
-function baseBrands(){const s=new Set();Object.keys(DATA).forEach(k=>s.add(k.replace(/\s*\(.*\)$/,'')));return [...s].sort((a,b)=>a.localeCompare(b));}
-function brandRows(base){const ks=Object.keys(DATA).filter(k=>k===base||k.startsWith(base+' '));const o=k=>k.includes('(Alt)')?1:k.includes('(Addl)')?2:0;return ks.sort((a,b)=>o(a)-o(b));}
-const viewSelect=document.getElementById('viewSelect'),thead=document.querySelector('thead'),tbody=document.querySelector('tbody');const collapsed=new Map();
+function baseBrands(){return Object.keys(DATA).sort();}
+function brandRows(base){return [base];}
+
+const viewSelect=document.getElementById('viewSelect');
+const thead=document.querySelector('thead');
+const tbody=document.querySelector('tbody');
 
 function renderHeader(){
-thead.innerHTML='';const tr=document.createElement('tr');
-tr.innerHTML='<th>Brand</th>'+SEGMENTS.map(s=>`<th><div class=seg>${s}</div></th>`).join('');
-thead.appendChild(tr);
+  thead.innerHTML='';
+  const tr=document.createElement('tr');
+  tr.innerHTML='<th>Brand</th>'+SEGMENTS.map(s=>`<th><div class=seg>${s}</div></th>`).join('');
+  thead.appendChild(tr);
 }
 
 function renderBody(){
-tbody.innerHTML='';
-const {value:v}=viewSelect;const all=v==='all';
-const byGroup={};baseBrands().forEach(b=>(byGroup[groupKeyFor(b)]??=[]).push(b));
-for(const g of Object.keys(byGroup).sort()){
-const trG=document.createElement('tr');trG.className='group-row';
-const td=document.createElement('td');const btn=document.createElement('button');btn.className='group-toggle';btn.textContent='–';
-td.append(btn,g);trG.appendChild(td);for(let i=0;i<6;i++)trG.appendChild(document.createElement('td'));tbody.appendChild(trG);
+  tbody.innerHTML='';
+  const groups={};
+  baseBrands().forEach(b=>(groups[groupKeyFor(b)]??=[]).push(b));
+  for(const g of Object.keys(groups).sort()){
+    const trG=document.createElement('tr');
+    trG.className='group-row';
+    trG.dataset.group=g;
+    const td=document.createElement('td');
+    td.colSpan=SEGMENTS.length+1;
+    td.innerHTML=`<span class="group-arrow">▾</span>${g}`;
+    trG.appendChild(td);
+    tbody.appendChild(trG);
 
-byGroup[g].forEach(base=>{
-brandRows(base).forEach(k=>{
-const tr=document.createElement('tr');const tdB=document.createElement('td');
-const ico=iconURL(base);const img=ico?`<img class="icon" src="${ico}" alt="${base}">`:'';
-const href=BRAND_PL_URL[base];
-const brandEl=href?`<a class="brandname" href="${href}" target="_blank" rel="noopener">${base}</a>`:`<span class="brandname">${base}</span>`;
-tdB.innerHTML=`<div class="brandcell">${img}${brandEl}${k!==base?`<span class="tag">${k.replace(base,'').trim()}</span>`:''}</div>`;
-tr.appendChild(tdB);
-const m=DATA[k]||[];for(let i=0;i<6;i++){const td=document.createElement('td');const val=m[i]||'(Blank)';td.innerHTML=val==='(Blank)'?`<span class=blank>${val}</span>`:`<span class=model>${val}</span>`;tr.appendChild(td);}
-tbody.appendChild(tr);
-});
-});
-btn.onclick=()=>{const hide=btn.textContent==='–';btn.textContent=hide?'+':'–';let n=trG.nextElementSibling;while(n&&!n.classList.contains('group-row')){n.style.display=hide?'none':'';n=n.nextElementSibling;}};
-}
+    groups[g].forEach(base=>{
+      const tr=document.createElement('tr');
+      const tdB=document.createElement('td');
+      const ico=iconURL(base);const img=ico?`<img class="icon" src="${ico}" alt="${base}">`:'';
+      const href=BRAND_PL_URL[base];
+      const brandEl=href?`<a class="brandname" href="${href}" target="_blank" rel="noopener">${base}</a>`:`<span class="brandname">${base}</span>`;
+      tdB.innerHTML=`<div class="brandcell">${img}${brandEl}</div>`;
+      tr.appendChild(tdB);
+      const m=DATA[base]||[];
+      for(let i=0;i<6;i++){const td=document.createElement('td');const val=m[i]||'(Blank)';td.innerHTML=val==='(Blank)'?`<span class=blank>${val}</span>`:`<span class=model>${val}</span>`;tr.appendChild(td);}
+      tbody.appendChild(tr);
+    });
+
+    trG.onclick=()=>{
+      const collapsed=trG.classList.toggle('collapsed');
+      trG.querySelector('.group-arrow').textContent=collapsed?'▸':'▾';
+      let n=trG.nextElementSibling;
+      while(n && !n.classList.contains('group-row')){
+        n.style.display=collapsed?'none':'';
+        n=n.nextElementSibling;
+      }
+    };
+  }
 }
 
 viewSelect.onchange=()=>{renderHeader();renderBody();};
-document.getElementById('downloadCsvBtn').onclick=()=>{let csv='Group,Brand,'+SEGMENTS.join(',')+'\n';for(const [b,m] of Object.entries(DATA)){csv+=`${groupKeyFor(b.replace(/\s*$begin:math:text$.*$end:math:text$$/,''))},${b},${m.join(',')}\n`;}const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv]));a.download='matrix.csv';a.click();};
+document.getElementById('downloadCsvBtn').onclick=()=>{let csv='Group,Brand,'+SEGMENTS.join(',')+'\n';for(const [b,m] of Object.entries(DATA)){csv+=`${groupKeyFor(b)},${b},${m.join(',')}\n`;};const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv]));a.download='matrix.csv';a.click();};
 renderHeader();renderBody();
 })();
 </script>
